@@ -10,11 +10,20 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { setSteamId } from '../data/store/userSlice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/AppNavigator';
 
 const QRScanScreen = () => {
   const navigation = useNavigation<NavigationProp<any>>();
   const dispatch = useDispatch();
   const [manualId, setManualId] = useState('');
+
+  const handleSubmit = () => {
+    if (manualId) {
+      dispatch(setSteamId(manualId));
+      navigation.navigate('MainTabs', { screen: 'LibraryTab' });
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
@@ -45,9 +54,9 @@ const QRScanScreen = () => {
       />
       <Pressable
         style={({ pressed }) => [styles.primaryButton, pressed ? styles.buttonPressed : styles.buttonDefault, !manualId ? styles.buttonDisabled : {}]}
-        onPress={() => dispatch(setSteamId(manualId))}
+        onPress={handleSubmit}
         disabled={!manualId}>
-        <Text style={styles.primaryButtonText}>✓ Submit</Text>
+        <Text style={styles.primaryButtonText}>✓ Submit & Go to Library</Text>
       </Pressable>
     </KeyboardAwareScrollView>
   );
