@@ -1,0 +1,12 @@
+//
+//  Config.release.xcconfig
+//  BacklogCompanion
+//
+//  Created by Mikhail Lazarau on 30/01/2026.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+#include? "Pods/Target Support Files/Pods-BacklogCompanion/Pods-BacklogCompanion.release.xcconfig"
+#include? "tmp.xcconfig"
