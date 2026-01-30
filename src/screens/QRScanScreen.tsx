@@ -1,12 +1,28 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TextInput
+} from 'react-native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { setSteamId } from '../data/store/userSlice';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const QRScanScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<any>>();
+  const dispatch = useDispatch();
+  const [manualId, setManualId] = useState('');
 
   return (
-    <View style={styles.container}>
+    <KeyboardAwareScrollView
+      contentContainerStyle={styles.container}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+      scrollEnabled={false}
+      keyboardShouldPersistTaps="handled"
+    >
       <Text style={styles.title}>QR Scan Screen</Text>
       <Pressable
         style={({ pressed }) => [
@@ -17,18 +33,35 @@ const QRScanScreen = () => {
       >
         <Text style={styles.primaryButtonText}>← Back to Splash</Text>
       </Pressable>
-    </View>
+
+      <Text style={styles.orText}>- or -</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Steam ID manually"
+        value={manualId}
+        onChangeText={setManualId}
+        placeholderTextColor="#A0AEC0"
+      />
+      <Pressable
+        style={({ pressed }) => [styles.primaryButton, pressed ? styles.buttonPressed : styles.buttonDefault, !manualId ? styles.buttonDisabled : {}]}
+        onPress={() => dispatch(setSteamId(manualId))}
+        disabled={!manualId}>
+        <Text style={styles.primaryButtonText}>✓ Submit</Text>
+      </Pressable>
+    </KeyboardAwareScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
     justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#F8FAFC',
     padding: 24,
   },
+
   title: {
     fontSize: 24,
     fontWeight: '600',
@@ -50,6 +83,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#3182CE',
   },
   primaryButtonText: { color: 'white', fontSize: 18, fontWeight: '600' },
+  orText: {
+    fontSize: 16,
+    color: '#718096',
+    marginVertical: 16,
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderColor: '#CBD5E0',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    backgroundColor: 'white',
+    marginBottom: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#A0AEC0',
+  },
 });
 
 export default QRScanScreen;

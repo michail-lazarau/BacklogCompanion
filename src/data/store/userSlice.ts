@@ -27,4 +27,5 @@ const userSlice = createSlice({
   },
 });
 
-export default userSlice;
+export const { reducer } = userSlice;
+export const { setSteamId, setLlmApiKey} = userSlice.actions;

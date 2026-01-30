@@ -16,7 +16,8 @@ import {
   persistStore,
 } from 'redux-persist';
 import { Storage } from 'redux-persist/es/types';
-import userSlice from './userSlice';
+import { reducer as userReducer } from './userSlice';
+import { useReducer } from 'react';
 
 const storage: MMKV = createMMKV();
 
@@ -45,7 +46,7 @@ const persistConfig = {
 // Calculates user state
 // Combine all reducers into a single root reducer
 const rootReducer = combineReducers({
-  user: userSlice.reducer,
+  user: userReducer,
 });
 
 // можно упроситить до persistedReducer = userSlice.reducer
