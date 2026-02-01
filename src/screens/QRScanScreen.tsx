@@ -6,15 +6,15 @@ import {
   Pressable,
   TextInput
 } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { setSteamId } from '../data/store/userSlice';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/AppNavigator';
+import { colors } from '../res/theme';
+import { QRScanScreenProp } from '../types/navigation.types';
 
 const QRScanScreen = () => {
-  const navigation = useNavigation<NavigationProp<any>>();
+  const navigation = useNavigation<QRScanScreenProp>();
   const dispatch = useDispatch();
   const [manualId, setManualId] = useState('');
 
@@ -86,30 +86,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   buttonDefault: {
-    backgroundColor: '#4299E1',
+    backgroundColor: colors.primary,
   },
   buttonPressed: {
-    backgroundColor: '#3182CE',
+    backgroundColor: colors.primaryPressed,
   },
-  primaryButtonText: { color: 'white', fontSize: 18, fontWeight: '600' },
+  primaryButtonText: { color: colors.textPressableComponent, fontSize: 18, fontWeight: '600' },
   orText: {
     fontSize: 16,
-    color: '#718096',
+    color: colors.textFootnote,
     marginVertical: 16,
   },
   input: {
     width: '100%',
     height: 50,
-    borderColor: '#CBD5E0',
+    borderColor: colors.inputBorder,
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    backgroundColor: 'white',
+    backgroundColor: colors.containerBackground,
     marginBottom: 16,
   },
   buttonDisabled: {
-    backgroundColor: '#A0AEC0',
+    backgroundColor: colors.inactive,
   },
 });
 

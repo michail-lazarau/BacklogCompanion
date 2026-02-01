@@ -2,20 +2,16 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet } from 'react-native';
 import LibraryScreen from '../screens/LibraryScreen';
-
-export type MainTabParamList = {
-  LibraryTab: undefined;
-  ProfileTab: undefined;
-  AITab: undefined;
-};
+import { colors } from '../res/theme';
+import { MainTabParamList } from '../types/navigation.types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 const MainTabNavigator = () => (
   <Tab.Navigator
     screenOptions={{
-      tabBarActiveTintColor: '#4299E1',
-      tabBarInactiveTintColor: 'gray',
+      tabBarActiveTintColor: colors.primary,
+      tabBarInactiveTintColor: colors.inactive,
       headerShown: false,
       tabBarStyle: styles.tabBar,
     }}

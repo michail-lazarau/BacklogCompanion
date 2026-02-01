@@ -1,24 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   QRScanScreen,
   SplashScreen,
-  LibraryScreen,
 } from '../screens';
 import MainTabNavigator from './MainTabNavigator';
-
-// move to types
-export type RootStackParamList = {
-  Splash: undefined;
-  QRScan: undefined;
-  MainTabs: undefined;
-};
-
-export type SplashScreenProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Splash'
->;
+import { RootStackParamList } from '../types/navigation.types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

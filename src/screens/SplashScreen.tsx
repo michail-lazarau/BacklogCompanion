@@ -1,6 +1,7 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SplashScreenProp } from '../navigation/AppNavigator';
+import { SplashScreenProp } from '../types/navigation.types';
+import { colors } from '../res/theme';
 
 const SplashScreen = () => {
   const navigation = useNavigation<SplashScreenProp>();
@@ -30,23 +31,23 @@ const SplashScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.containerBackground,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
   logo: { fontSize: 64, marginBottom: 16 },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 32, color: '#1A202C' },
-  header: { fontSize: 24, fontWeight: '600', marginBottom: 24, color: '#4A5568' },
+  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 32, color: colors.title },
+  header: { fontSize: 24, fontWeight: '600', marginBottom: 24, color: colors.subtitle },
   qrPreview: {
     width: 160,
     height: 160,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#4299E1',
+    borderColor: colors.primary,
     borderStyle: 'dashed',
     marginBottom: 32,
-    backgroundColor: '#F7FAFC',
+    backgroundColor: colors.containerBackground,
   },
   primaryButton: {
     paddingHorizontal: 24,
@@ -57,13 +58,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   buttonDefault: {
-    backgroundColor: '#4299E1',
+    backgroundColor: colors.primary,
   },
   buttonPressed: {
-    backgroundColor: '#3182CE',
+    backgroundColor: colors.primaryPressed,
   },
-  primaryButtonText: { color: 'white', fontSize: 18, fontWeight: '600' },
-  secondaryLink: { color: '#718096', fontSize: 16, fontStyle: 'italic' },
+  primaryButtonText: { color: colors.textPressableComponent, fontSize: 18, fontWeight: '600' },
 });
 
 export default SplashScreen;

@@ -5,14 +5,14 @@ import {
   View,
   Image,
   StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
+  ActivityIndicator, Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSteamLibrary } from '../hooks/useSteamLibrary';
 import type { SteamGame } from '../types/steam.types';
 import type { RootState } from '../data/store';
 import { useSelector } from 'react-redux';
+import { colors } from '../res/theme';
 
 const LibraryScreen = () => {
   const steamId = useSelector((state: RootState) => state.user.steamId);
@@ -41,9 +41,14 @@ const LibraryScreen = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>Error: {error.message}</Text>
-        <TouchableOpacity style={styles.retryButton}>
+        <Pressable
+          onPress={() => refetch()}
+          style={({ pressed }) => [
+            styles.retryButton,
+            pressed && styles.buttonPressed,
+          ]}>
           <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     );
   }
@@ -55,7 +60,6 @@ const LibraryScreen = () => {
         <Text style={styles.headerSubtitle}>You own {gameCount} games</Text>
       </View>
 
-      {/* Только "All" чип */}
       <View style={styles.allChipContainer}>
         <View style={styles.allChip}>
           <Text style={styles.allChipText}>All</Text>
@@ -64,7 +68,7 @@ const LibraryScreen = () => {
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
       ) : (
@@ -86,10 +90,10 @@ const LibraryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: colors.containerBackground },
   header: { padding: 20 },
-  headerTitle: { fontSize: 28, fontWeight: 'bold', color: '#000' },
-  headerSubtitle: { fontSize: 16, color: '#666', marginTop: 4 },
+  headerTitle: { fontSize: 28, fontWeight: 'bold', color: colors.title },
+  headerSubtitle: { fontSize: 16, color: colors.textFootnote, marginTop: 4 },
   
   allChipContainer: { 
     paddingHorizontal: 20, 
@@ -99,15 +103,15 @@ const styles = StyleSheet.create({
   allChip: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#007AFF',
+    backgroundColor: colors.primary,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: colors.primary,
   },
   allChipText: { 
     fontSize: 14, 
     fontWeight: '500', 
-    color: 'white' 
+    color: colors.textPressableComponent
   },
   
   list: { flex: 1 },
@@ -116,7 +120,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     paddingVertical: 16, 
     borderBottomWidth: 1, 
-    borderBottomColor: '#F1F3F4' 
+    borderBottomColor: colors.surface 
   },
   gameIcon: { 
     width: 72, 
@@ -126,15 +130,15 @@ const styles = StyleSheet.create({
   },
   gameInfo: { flex: 1 },
   gameName: { fontSize: 17, fontWeight: '600', marginBottom: 4 },
-  playtime: { fontSize: 15, color: '#666', fontWeight: '500' },
+  playtime: { fontSize: 15, color: colors.textFootnote, fontWeight: '500' },
   unplayedBadge: { 
     marginTop: 4, 
     paddingHorizontal: 8, 
     paddingVertical: 2, 
-    backgroundColor: '#E5E5E7', 
+    backgroundColor: colors.surface, 
     borderRadius: 12, 
     fontSize: 12, 
-    color: '#86868B', 
+    color: colors.textFootnote, 
     alignSelf: 'flex-start' 
   },
   loadingContainer: { 
@@ -150,22 +154,25 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     padding: 60 
   },
-  emptyText: { fontSize: 17, color: '#86868B', textAlign: 'center' },
+  emptyText: { fontSize: 17, color: colors.textFootnote, textAlign: 'center' },
   errorContainer: { 
     flex: 1, 
     justifyContent: 'center', 
     alignItems: 'center', 
     padding: 40 
   },
-  errorText: { fontSize: 17, color: '#FF3B30', textAlign: 'center' },
+  errorText: { fontSize: 17, color: colors.textError, textAlign: 'center' },
   retryButton: { 
     marginTop: 16,
     paddingHorizontal: 24, 
     paddingVertical: 12, 
-    backgroundColor: '#007AFF', 
+    backgroundColor: colors.primary, 
     borderRadius: 12 
   },
-  retryText: { color: 'white', fontWeight: '600' },
+  buttonPressed: {
+    backgroundColor: colors.primaryPressed,
+  },
+  retryText: { color: colors.textPressableComponent, fontWeight: '600' },
 });
 
 export default LibraryScreen;
