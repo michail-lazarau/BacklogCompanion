@@ -24,4 +24,25 @@ interface SteamGame {
   has_leaderboards?: boolean;
 }
 
-export type { SteamOwnedGamesResponse, SteamGame };
+interface SteamAppDetailsResponse {
+  [appid: string]: AppDetailResponse;
+}
+
+interface AppDetailResponse {
+  success: boolean;
+  data?: SteamAppData;
+}
+
+interface SteamAppData {
+  type: string;
+  name: string;
+  steam_appid: number;
+  header_image: string;
+  capsule_image?: string;
+  short_description: string;
+  detailed_description?: string;
+  genres?: Array<{ id: string; description: string }>;
+  // ... other fields can be added as needed
+}
+
+export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse };

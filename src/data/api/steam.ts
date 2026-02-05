@@ -1,26 +1,6 @@
-import Config from 'react-native-config';
-import type { SteamOwnedGamesResponse } from '../../types/steam.types';
-
-const STEAM_API_BASE_URL = 'https://api.steampowered.com';
-
-/**
- * A generic fetch wrapper for making API requests.
- * It handles JSON parsing and basic error handling.
- * @param endpoint The API endpoint to call.
- * @param params URL search parameters.
- * @returns The JSON response.
- */
-async function steamApiFetch<T>(endpoint: string, params: URLSearchParams): Promise<T> {
-  const url = `${STEAM_API_BASE_URL}/${endpoint}?${params.toString()}`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error(`Steam API error: ${response.status} ${response.statusText}`);
-  }
-
-  return response.json() as Promise<T>;
-}
+import Config from "react-native-config";
+import { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse } from "../../types/steam.types";
+import { steamFetch, storeFetch } from "./httpClient";
 
 export const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse> => {
   const params = new URLSearchParams({
@@ -29,5 +9,33 @@ export const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse>
     format: 'json',
     include_appinfo: 'true',
   });
-  return steamApiFetch<SteamOwnedGamesResponse>('IPlayerService/GetOwnedGames/v0001/', params);
+  return steamFetch<SteamOwnedGamesResponse>(
+    'IPlayerService/GetOwnedGames/v0001/',
+    params,
+  );
+};
+
+export const getAppDetails = async (appid: number): Promise<SteamAppData> => {
+  const params = new URLSearchParams({
+    appids: appid.toString(),
+    cc: 'US',
+    l: 'russian',
+    filters: 'basic,header_image',
+  });
+  const data = await storeFetch<SteamAppDetailsResponse>(
+    'appdetails',
+    params
+  );
+  const detail = data[appid.toString()];
+
+  if (!detail?.success || !detail.data) {
+    throw new Error(`App ${appid} details failed`);
+  }
+
+  return detail.data;
+};
+
+export const getManyAppDetails = async (appids: number[]): Promise<SteamAppData[]> => {
+  const promises = appids.map(async (appid) => getAppDetails(appid));
+  return Promise.all(promises);
 };
