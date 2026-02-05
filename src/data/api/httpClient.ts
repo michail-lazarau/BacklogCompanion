@@ -1,3 +1,5 @@
+import { API_BASE_URLS, ApiOptions } from "../../types/httpClient.types";
+
 export const apiFetch = async <T>(options: ApiOptions): Promise<T> => {
   const { api, endpoint, params, headers = {} } = options;
   const baseUrl = API_BASE_URLS[api];
