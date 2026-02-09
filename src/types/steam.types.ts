@@ -24,6 +24,15 @@ interface SteamGame {
   has_leaderboards?: boolean;
 }
 
+interface ReducedSteamGame {
+  appid: number;
+  name: string;
+  playtime_forever: number;
+  rtime_updated?: number;
+  content_descriptorids?: number[];
+  playtime_2weeks?: number;
+}
+
 interface SteamAppDetailsResponse {
   [appid: string]: AppDetailResponse;
 }
@@ -45,4 +54,8 @@ interface SteamAppData {
   // ... other fields can be added as needed
 }
 
-export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse };
+interface LLMGameSuggestionResponse {
+  appids: number[];
+}
+
+export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse, ReducedSteamGame , LLMGameSuggestionResponse };

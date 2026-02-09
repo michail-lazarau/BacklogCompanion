@@ -11,7 +11,7 @@ export const useSteamLibrary = () => {
     queryKey: ['steamLibrary', steamId],
     queryFn: () => getOwnedGames(steamId!), // steamId! is safe here due to the enabled condition
     enabled: !!steamId,
-    staleTime: 5 * 60 * 1000,  // 5 min
+    staleTime: 5 * 60 * 1000, // 5 min
     retry: 2,
   });
 };
@@ -21,7 +21,7 @@ export const useSteamAppDetails = (appids: number[]) => {
     queries: appids.map(appid => ({
       queryKey: ['steamAppDetail', appid],
       queryFn: () => getAppDetails(appid),
-      enabled: true,
+      enabled: !!appid,
       staleTime: 10 * 60 * 1000,
       retry: 1,
     })),

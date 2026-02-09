@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   FlatList,
   Text,
@@ -10,13 +10,16 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSteamLibrary } from '../hooks/useSteam';
 import type { SteamGame } from '../types/steam.types';
-import type { RootState } from '../data/store';
-import { useSelector } from 'react-redux';
 import { colors } from '../res/theme';
 
 const LibraryScreen = () => {
-  const steamId = useSelector((state: RootState) => state.user.steamId);
   const { data, isLoading, error, refetch } = useSteamLibrary();
+
+  useEffect(() => {
+  console.log('isLoading:', isLoading);
+  console.log('error:', error);
+  console.log('data:', data);
+}, [data, isLoading, error]);
 
   const games: SteamGame[] = data?.response.games || [];
   const gameCount = data?.response.game_count || 0;

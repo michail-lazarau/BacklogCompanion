@@ -2,7 +2,7 @@ import Config from "react-native-config";
 import { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse } from "../../types/steam.types";
 import { steamFetch, storeFetch } from "./httpClient";
 
-export const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse> => {
+const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse> => {
   const params = new URLSearchParams({
     key: Config.STEAM_API_KEY,
     steamid: steamId,
@@ -15,7 +15,7 @@ export const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse>
   );
 };
 
-export const getAppDetails = async (appid: number): Promise<SteamAppData> => {
+const getAppDetails = async (appid: number): Promise<SteamAppData> => {
   const params = new URLSearchParams({
     appids: appid.toString(),
     cc: 'US',
@@ -35,7 +35,9 @@ export const getAppDetails = async (appid: number): Promise<SteamAppData> => {
   return detail.data;
 };
 
-export const getManyAppDetails = async (appids: number[]): Promise<SteamAppData[]> => {
+const getManyAppDetails = async (appids: number[]): Promise<SteamAppData[]> => {
   const promises = appids.map(async (appid) => getAppDetails(appid));
   return Promise.all(promises);
 };
+
+export { getOwnedGames, getAppDetails, getManyAppDetails };

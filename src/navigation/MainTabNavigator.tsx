@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet } from 'react-native';
-import LibraryScreen from '../screens/LibraryScreen';
 import { colors } from '../res/theme';
 import { MainTabParamList } from '../types/navigation.types';
+import { AIScreen, LibraryScreen } from '../screens';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -20,6 +20,12 @@ const MainTabNavigator = () => (
       name="LibraryTab" 
       component={LibraryScreen} 
       options={{ tabBarLabel: 'Library' }} 
+    />
+
+    <Tab.Screen 
+      name="AITab" 
+      component={AIScreen} 
+      options={{ tabBarLabel: 'AI' }} 
     />
   </Tab.Navigator>
 );

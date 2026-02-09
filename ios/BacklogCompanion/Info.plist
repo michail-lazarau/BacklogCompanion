@@ -43,7 +43,16 @@
 				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
 				<false/>
 			</dict>
-			<key>store.steampowered.com/api</key>
+			<key>store.steampowered.com</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<false/>
+			</dict>
+			<key>generativelanguage.googleapis.com</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
 				<true/>

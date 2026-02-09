@@ -16,7 +16,7 @@ import { QRScanScreenProp } from '../types/navigation.types';
 const QRScanScreen = () => {
   const navigation = useNavigation<QRScanScreenProp>();
   const dispatch = useDispatch();
-  const [manualId, setManualId] = useState('');
+  const [manualId, setManualId] = useState('76561198050360571');
 
   const handleSubmit = () => {
     if (manualId) {
