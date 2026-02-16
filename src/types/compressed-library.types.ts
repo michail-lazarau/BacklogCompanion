@@ -2,12 +2,11 @@ export interface LibraryStats {
   totalGames: number;
   totalPlaytimeHours: number;
   unplayedCount: number;
-  // activeLast3MonthsCount: number;
-  topMostPlayed: Array<{
-    appid: number;
-    name: string;
-    hours: number;
-  }>;
+  // topMostPlayed: Array<{
+  //   appid: number;
+  //   name: string;
+  //   hours: number;
+  // }>;
 }
 
 export interface GameGroup {
@@ -17,11 +16,12 @@ export interface GameGroup {
   totalHours: number;
   lastPlayed?: number;
   sampleGames: Array<{
-    appid: number;
+    // appid: number;
     name: string;
-    hours: number;
+    // hours: number;
   }>;
   genres?: string[];
+  categories?: string[];  // "Multiplayer", "Co-op", "Single-Player"
   developers?: string[];
   publishers?: string[];
 }
@@ -36,12 +36,13 @@ export interface SeriesStats {
 
 export interface CompressedLibrary {
   stats: LibraryStats;
-  groups: GameGroup[];
-  series: SeriesStats[];
+  groups: Record<string, GameGroup[]>;
+  // series: SeriesStats[];
 }
 
 export interface CachedMetadata {
   genres: string[];
+  categories: string[];
   developers: string[];
   publishers: string[];
   cachedAt: number;

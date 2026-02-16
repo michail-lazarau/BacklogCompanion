@@ -2,7 +2,7 @@ import { useQuery, useQueries } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import { queryClient } from '../data/QueryProvider';
 import type { RootState } from '../data/store';
-import { SteamOwnedGamesResponse } from '../types/steam.types';
+import { SteamAppData, SteamOwnedGamesResponse } from '../types/steam.types';
 import { getAppDetails, getOwnedGames } from '../data/api/steam';
 
 export const useSteamLibrary = () => {
@@ -17,7 +17,7 @@ export const useSteamLibrary = () => {
   });
 };
 
-export const fetchSteamAppDetail = (appid: number) => {
+export const fetchSteamAppDetail = (appid: number): Promise<SteamAppData> => {
   return queryClient.fetchQuery({
     queryKey: ['steamAppDetail', appid],
     queryFn: () => getAppDetails(appid),

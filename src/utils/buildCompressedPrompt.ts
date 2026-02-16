@@ -1,50 +1,27 @@
-import type { CompressedLibrary, GameGroup, SeriesStats } from '../types/compressed-library.types';
+import type { CompressedLibrary } from '../types/compressed-library.types';
 
-// todo: propose games beyond library (e.g. similar to owned but not owned, based on similarity to top played)
 export function buildCompressedPrompt(compressed: CompressedLibrary): string {
-  const { stats, groups, series } = compressed;
+  const { stats, groups } = compressed;
 
-  // ✅ PRIORITY SORT (High inactive #1!)
-  const priorityGroups = groups
-    .sort((a, b) => getGroupPriority(b.label) - getGroupPriority(a.label));
-    // .slice(0, 12);
+  const recentGroups = (groups['Recent'] || []).slice(0, 3);           // Топ Recent
+  const highInactiveGroups = (groups['High hours inactive'] || []).slice(0, 2);  // Топ High
+  const activeGroups = [...recentGroups, ...highInactiveGroups];  
 
-  // ✅ READABLE FORMAT (4k tokens)
-  const prompt = `Steam backlog expert. Recommend **3-5 games** from my library to play next.
+  const unplayedGroups = (groups['Unplayed'] || []).slice(0, 4);
 
-🔥 TOP PRIORITY GROUPS (first!):
-${priorityGroups
-    // .slice(0, 6)
-    .map(g => 
-  `• ${g.label} (${g.count} games, ${g.avgHours}h): ${g.sampleGames.map(s => `${s.name} (steam appid: ${s.appid})`).join(', ')}`
+  return `Steam backlog expert. Recommend **5-8 games** similar to ACTIVE PROFILE.
+
+Stats: ${stats.totalGames} games, ${stats.totalPlaytimeHours}h total, ${stats.unplayedCount} unplayed.
+
+ACTIVE PROFILE (your current taste - match genres/categories):
+${activeGroups.map(g =>
+  `• ${g.label} (${g.avgHours?.toFixed(0)}h avg): genres=${(g.genres ?? []).slice(0,2).join('/')}, cat=${(g.categories ?? []).slice(0,2).join('/')} | ${g.sampleGames.map(s => s.name).join(', ')}`
 ).join('\n')}
 
-🏆 Series:
-${series
-    // .slice(0, 5)
-    .map((s: SeriesStats) => 
-  `• ${s.seriesName}: ${s.owned} games (${s.unplayed} unplayed)`
+UNPLAYED (recommend ONLY if genres/categories match ACTIVE >50%; max 1 per series):
+${unplayedGroups.map(g =>
+  `• ${g.label} (0h): genres=${(g.genres ?? []).slice(0,2).join('/')}, cat=${(g.categories ?? []).slice(0,2).join('/')} | ${g.sampleGames.map(s => s.name).join(', ')}`
 ).join('\n')}
 
-Output ONLY JSON:
-{
-  "reasoning": "1 sentence why these recommendations",
-  "appids": [730, 578080, ...]
-}`;
-
-  return prompt;
+Output ONLY JSON: {"reasoning": "1 short sentence why", "appids": [730, 553850]}`;
 }
-
-function getGroupPriority(label: string): number {
-  const [, behavior] = label.split(' - ');
-  return {
-    'High hours inactive': 5,    // #1!
-    'Recent': 4,
-    'All time favorites': 3,
-    'Low hours': 2,
-    'Unplayed': 1,                // #5!
-  }[behavior as string] || 0;
-}
-
-// 📊 Stats:
-// Games: ${stats.totalGames} | Hours: ${stats.totalPlaytimeHours} | Unplayed: ${stats.unplayedCount}

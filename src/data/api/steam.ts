@@ -19,8 +19,8 @@ const getAppDetails = async (appid: number): Promise<SteamAppData> => {
   const params = new URLSearchParams({
     appids: appid.toString(),
     cc: 'US',
-    l: 'russian',
-    filters: 'basic,genres,developers,publishers',
+    l: 'english',
+    // filters: 'basic,genres,categories,developers,publishers',
   });
   const data = await storeFetch<SteamAppDetailsResponse>(
     'appdetails',

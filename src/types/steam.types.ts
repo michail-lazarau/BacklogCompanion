@@ -51,6 +51,7 @@ interface SteamAppData {
   short_description: string;
   detailed_description?: string;
   genres?: { id: string; description: string }[];
+  categories?: { id: string; description: string }[];
   developers?: string[];
   publishers?: string[];
   // ... other fields can be added as needed
