@@ -28,9 +28,9 @@ interface ReducedSteamGame {
   appid: number;
   name: string;
   playtime_forever: number;
-  rtime_updated?: number;
-  content_descriptorids?: number[];
+  rtime_last_played: number;
   playtime_2weeks?: number;
+  content_descriptorids?: number[];
 }
 
 interface SteamAppDetailsResponse {
@@ -50,12 +50,26 @@ interface SteamAppData {
   capsule_image?: string;
   short_description: string;
   detailed_description?: string;
-  genres?: Array<{ id: string; description: string }>;
+  genres?: { id: string; description: string }[];
+  developers?: string[];
+  publishers?: string[];
   // ... other fields can be added as needed
 }
 
 interface LLMGameSuggestionResponse {
+  reasoning: string;
   appids: number[];
 }
+
+// interface LLMGameSuggestionResponse {
+//   reasoning: string;
+//   recommendaions: {
+//     appid: number;
+//     name: string;
+//     reason: string;
+//     priority: 'high' | 'medium' | 'low';
+//     group: string;
+//   }[]
+// }
 
 export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse, ReducedSteamGame , LLMGameSuggestionResponse };

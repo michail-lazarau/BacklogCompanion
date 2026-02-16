@@ -14,7 +14,7 @@ const AIScreen = () => {
     const { data: libData, isLoading: libLoading } = useSteamLibrary();
     const games = libData?.response?.games || [];
 
-    const generateSuggestions = useGenerateSuggestions(reduceOwnedGames(libData!));
+    const generateSuggestions = useGenerateSuggestions(reduceOwnedGames(libData!));  // limit to top 100 games for performance
     const detailsQueries = useSteamAppDetails(suggestionAppids);
 
     const recommendations = detailsQueries
@@ -43,7 +43,8 @@ const AIScreen = () => {
         }
 
         generateSuggestions.mutate(undefined, {
-          onSuccess: (data: LLMGameSuggestionResponse) => {
+          onSuccess: async (data: LLMGameSuggestionResponse) => {
+            console.log('LLM reasoning:', data.reasoning); // debug
             setSuggestionAppids(data.appids);
             Toast.show({
               type: 'success',

@@ -37,3 +37,32 @@ export const generateSuggestion = async (games: ReducedSteamGame[]): Promise<LLM
   
   return JSON.parse(response.candidates[0].content.parts[0].text || '{}');
 }
+
+export const generateSuggestionWith = async (prompt: string): Promise<LLMGameSuggestionResponse> => {
+
+  if (!Config.GOOGLEAI_API_KEY) {
+    throw new Error('Google AI API Key is missing in Config');
+  }
+
+  const params = new URLSearchParams({
+    key: Config.GOOGLEAI_API_KEY,
+  });
+
+  const response = await geminiFetch<GenerateContentResponse>(
+    'models/gemini-2.5-flash:generateContent', 
+    params, 
+    'POST', 
+    {
+      contents: [{
+        parts: [{
+          text: prompt
+        }]
+      }],
+      generationConfig: {
+        response_mime_type: "application/json"
+      }
+    },
+  );
+  
+  return JSON.parse(response.candidates[0].content.parts[0].text || '{}');
+}

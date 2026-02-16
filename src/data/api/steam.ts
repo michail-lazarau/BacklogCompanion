@@ -20,7 +20,7 @@ const getAppDetails = async (appid: number): Promise<SteamAppData> => {
     appids: appid.toString(),
     cc: 'US',
     l: 'russian',
-    filters: 'basic,header_image',
+    filters: 'basic,genres,developers,publishers',
   });
   const data = await storeFetch<SteamAppDetailsResponse>(
     'appdetails',

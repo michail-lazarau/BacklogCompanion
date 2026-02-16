@@ -17,7 +17,7 @@ import {
 } from 'redux-persist';
 import { Storage } from 'redux-persist/es/types';
 import { reducer as userReducer } from './userSlice';
-import { useReducer } from 'react';
+import { reducer as gameMetadataReducer } from './gameMetadataSlice';
 
 const storage: MMKV = createMMKV();
 
@@ -40,13 +40,14 @@ export const reduxStorage: Storage = {
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  whitelist: ['user'], // Persist only the 'user' slice
+  whitelist: ['user', 'gameMetadata'], // Persist 'user' and 'gameMetadata' slices
 };
 
 // Calculates user state
 // Combine all reducers into a single root reducer
 const rootReducer = combineReducers({
   user: userReducer,
+  gameMetadata: gameMetadataReducer,
 });
 
 // можно упроситить до persistedReducer = userSlice.reducer
