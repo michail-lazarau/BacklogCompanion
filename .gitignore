@@ -76,3 +76,16 @@ yarn-error.log
 
 # Environment files
 .env
+
+# BMAD
+/_bmad/
+/_bmad-output/
+
+# Local AI tooling
+/.agent/
+/.claude/
+/.codex/
+/.cursor/
+/.gemini/
+/.github/
+/.windsurf/
