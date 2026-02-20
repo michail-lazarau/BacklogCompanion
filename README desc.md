@@ -73,6 +73,8 @@ MVP (Развернуто)
 -- Экран QR Scan (Vision Camera) → считывание steamId или URL c ним.
 -- Fallback: ручной ввод SteamID в Profile/Settings.
 
+UPD: QR workflow невозможно реализовать - steam по поставляет открытого api по генерации или сканированию QR code.
+
 - Интеграция с Steam Web API:
 -- Получение списка игр (GetOwnedGames) по SteamID.
 -- Минимальные поля: appid, название, иконка/обложка, общее время.
