@@ -21,6 +21,8 @@ DerivedData
 *.ipa
 *.xcuserstate
 **/.xcode.env.local
+ios/tmp.xcconfig
+ios/BacklogCompanion.xcodeproj/project.pbxproj
 
 # Android/IntelliJ
 #
