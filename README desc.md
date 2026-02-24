@@ -137,13 +137,7 @@ Redux - настройки. React Query - HTTP + кеш.
 
 - Всё хранится в mmkv/AsyncStorage, без Firebase.
 
-8. Deep linking, Sharing, QR расширения
-
-- QR только для:
--- Импорта SteamID.
-
-
-9. Animations
+8. Animations
 
 - Default transition animations from React Navigation.
 
@@ -199,12 +193,13 @@ Post MVP roadmap:
 
 - Синхронизация этих настроек через Firebase (один профиль на всех устройствах).
 
-8. Deep linking, Sharing, QR расширения
+9. Deep linking, Sharing, QR расширения
 
+- Импорт SteamID
 - Deep links
 - QR для шейринга “Поделиться рекомендацией”
 
-9. Animations
+10. Animations
  
 - Небольшие анимации:
 -- Press feedback (scale/fade).
@@ -214,7 +209,7 @@ Post MVP roadmap:
 -- Parallax header в Game Detail.
 -- Fancy transitions между AI → Game Detail.
 
-10. Firebase, Auth, Push
+11. Firebase, Auth, Push
 
 - Google Sign‑In (Firebase Auth) для:
 -- Автологина и мульти-девайса.

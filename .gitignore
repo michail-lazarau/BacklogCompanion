@@ -81,7 +81,7 @@ yarn-error.log
 
 # BMAD
 /_bmad/
-/_bmad-output/
+# /_bmad-output/
 
 # Local AI tooling
 /.agent/
