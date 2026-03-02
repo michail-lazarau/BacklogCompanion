@@ -1,0 +1,81 @@
+# generated: 2026-03-02
+# project: BacklogCompanion
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-03-02
+project: BacklogCompanion
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation & Infrastructure
+  epic-1: backlog
+  1-1-project-scaffold-and-core-dependencies: backlog
+  1-2-local-database-and-drizzle-configuration: backlog
+  1-3-redux-store-mmkv-and-state-foundation: backlog
+  1-4-navigation-shell-and-app-entry-point: backlog
+  1-5-cicd-pipelines-and-crash-reporting: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Steam Authentication & User Profile
+  epic-2: backlog
+  2-1-auth-screen-and-steam-openid-sign-in: backlog
+  2-2-steam-web-api-key-entry: backlog
+  2-3-steam-profile-summary-view: backlog
+  2-4-logout-and-session-clearing: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Steam Library — Sync, Browse & Search
+  epic-3: backlog
+  3-1-steam-library-sync-engine: backlog
+  3-2-library-screen-local-first-list-view: backlog
+  3-3-library-filter-and-sort-controls: backlog
+  3-4-instant-local-game-search: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Game Details & Personal Backlog Tracking
+  epic-4: backlog
+  4-1-game-detail-screen-navigation-and-header: backlog
+  4-2-hltb-time-estimates-display: backlog
+  4-3-achievement-progress-display: backlog
+  4-4-manual-backlog-status-assignment: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: AI-Powered Recommendations
+  epic-5: backlog
+  5-1-gemini-api-key-setup: backlog
+  5-2-recommendation-engine-and-library-compression: backlog
+  5-3-home-screen-concierge-dashboard: backlog
+  epic-5-retrospective: optional

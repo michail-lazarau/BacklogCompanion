@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [step-01-init, step-02-discovery, step-02b-vision, step-02c-executive-summary, step-03-success, step-04-journeys, step-05-domain, step-06-innovation, step-07-project-type, step-08-scoping, step-09-functional, step-10-nonfunctional, step-11-polish, step-12-complete]
+stepsCompleted: [step-01-init, step-02-discovery, step-02b-vision, step-02c-executive-summary, step-03-success, step-04-journeys, step-05-domain, step-06-innovation, step-07-project-type, step-08-scoping, step-09-functional, step-10-nonfunctional, step-11-polish, step-12-complete, step-e-01-discovery, step-e-02-review, step-e-03-edit]
 status: complete
 inputDocuments:
   - _bmad-output/planning-artifacts/product-brief-BacklogCompanion-2026-02-23.md
@@ -9,7 +9,19 @@ inputDocuments:
   - docs/api-contracts-root.md
   - docs/data-models-root.md
   - docs/source-tree-analysis.md
+classification:
+  projectType: mobile_app
 workflowType: 'prd'
+lastEdited: '2026-03-02'
+editHistory:
+  - date: '2026-03-02'
+    changes: 'Resolved 2 critical scope issues from implementation readiness report: (1) Added "The Deck" discovery mode and Metacritic Sort explicitly to Phase 2 (§8.3); (2) Removed Metacritic Score from FR-LIB-04 MVP sort options with cross-reference to §8.3.'
+  - date: '2026-03-02'
+    changes: 'Defined measurable thresholds for recommendation engine FRs: FR-REC-01 "Quick Win" = rating ≥ 75 (Metacritic or Steam %) AND HLTB ≤ 5 hours; FR-REC-02 "Forgotten Gem" = rating ≥ 75 AND library add date > 1 year. Added Steam review % as fallback. Resolves SMART validation Critical flag on measurability.'
+  - date: '2026-03-02'
+    changes: 'Rewrote Journey 4.2 (Sam) to use FR-REC-02 "Forgotten Gems" recommendation instead of manual "Highest Rated" sort. Resolves Journey 4.2 → FR-LIB-04 traceability gap identified in validation.'
+  - date: '2026-03-02'
+    changes: 'Metadata fixes from validation: added classification.projectType to frontmatter; added §7.3 device permissions enumeration (network-only, Phase 1); added §7.4 push notification deferral note referencing §8.3.'
 ---
 
 # Product Requirements Document - BacklogCompanion
@@ -76,8 +88,8 @@ A successful BacklogCompanion creates a relationship of trust where the user rel
 
 ### 4.2 The "Value Optimizer" (Sam) - The Secondary Journey
 - **The Situation:** Sam is a student on a budget. They have a huge backlog of free Epic/Amazon Prime games and cheap bundle keys but don't know which ones are actually *good*.
-- **The Rising Action:** Sam filters their library by "Highest Rated" + "Unplayed."
-- **The Climax:** The app highlights a 95% rated indie game they got in a bundle 3 years ago and forgot about.
+- **The Rising Action:** Sam opens BacklogCompanion and checks the "Forgotten Gems" recommendation — games with high ratings they've owned for over a year but never started.
+- **The Climax:** The app surfaces a 92%-rated indie game they got in a bundle 3 years ago and completely forgot about.
 - **The Resolution:** Sam realizes they don't need to buy the new $70 AAA game because they have "gold" sitting in their library already.
 
 ## 5. Domain-Specific Requirements
@@ -112,10 +124,14 @@ This section is reserved for outlining truly novel features or approaches. Given
 - **Sync Logic:** Auto-sync with Steam API happens only when foregrounded + online.
 
 ### 7.3 Device Integration
+- **Required Permissions (Phase 1):** Network access (internet connectivity for Steam API sync). No camera, location, contacts, or microphone permissions required.
 - **Haptics:** Use haptic feedback for satisfying interactions (e.g., marking a game "Complete").
 - **Deep Linking:** Support `steam://` protocol to launch games directly from the app on the device (if Steam Mobile is installed) or on PC (via remote download).
 
-### 7.4 Store Compliance
+### 7.4 Push Notifications
+Push notification strategy deferred to Phase 2; see §8.3.
+
+### 7.5 Store Compliance
 - **iOS:** strict adherence to Human Interface Guidelines (HIG). No "Unlock with Steam" as a gate that violates IAP rules (since we don't sell content, this is safer, but "Sign in with Steam" must differ from "Sign in with Apple").
 - **Android:** Material Design 3 adaptation.
 
@@ -137,6 +153,8 @@ Build a "Problem-Solving MVP" that focuses entirely on **Analysis & Curation**. 
 - **Collections:** User-created lists ("Halloween Spooky List").
 - **Stats Dashboard:** Graphs showing "Years of Backlog Cleared."
 - **Notifications:** "You're 2 hours away from beating *Hades*!"
+- **The Deck (Discovery Mode):** Swipe-based card discovery interface triggered by "Help Me Choose" CTA. Left swipe = Shelve/Skip, Right swipe = Play/Save. Produces an "Up Next" queue. Requires gesture library, card stack animation, and queue data structure — deferred from MVP due to architectural prerequisites not present in Phase 1.
+- **Metacritic Sort:** Sort library by Metacritic Score (FR-LIB-04 descoped from MVP). Requires per-game `GetAppDetails` calls (distinct from bulk `GetOwnedGames` sync), incremental enrichment logic, and a `metacritic_score` schema column.
 
 ### 8.4 Phase 3: The Ecosystem (Long Term)
 - **Cross-Platform:** Import data from EPIC, GOG, PSN, Xbox.
@@ -154,7 +172,7 @@ Build a "Problem-Solving MVP" that focuses entirely on **Analysis & Curation**. 
 - **FR-LIB-01 (Ingestion):** System fetches the user's full owned game library from Steam Web API.
 - **FR-LIB-02 (Playtime):** System fetches and displays total playtime for each game.
 - **FR-LIB-03 (Filtering):** User can filter library by status: "Unplayed" (0 hours), "In Progress" (>0 hours), "Completed" (Manual Tag).
-- **FR-LIB-04 (Sorting):** User can sort library by: Alphabetical, Playtime (Asc/Desc), Metacritic Score (if available), Release Date.
+- **FR-LIB-04 (Sorting):** User can sort library by: Alphabetical, Playtime (Asc/Desc), Release Date. *(Metacritic Score sort deferred to Phase 2 — see §8.3.)*
 - **FR-LIB-05 (Search):** User can search for a game by title with instant local results.
 
 ### 9.3 Game Details & Enrichment (FR-DETAIL)
@@ -164,8 +182,8 @@ Build a "Problem-Solving MVP" that focuses entirely on **Analysis & Curation**. 
 - **FR-DETAIL-04:** User can manually assign a "Backlog Status" (Backlog, Playing, Completed, Abandoned, Shelved).
 
 ### 9.4 Recommendations Engine (FR-REC)
-- **FR-REC-01 (The "Quick Win"):** System identifies and displays a "Quick Win" recommendation (High Rating + Short Playtime + Unplayed).
-- **FR-REC-02 (The "Forgotten Gem"):** System identifies a "Forgotten Gem" (High Rating + Purchased >1 year ago + Unplayed).
+- **FR-REC-01 (The "Quick Win"):** System identifies and displays a "Quick Win" recommendation: Unplayed game with rating score ≥ 75 (Metacritic where available, otherwise Steam positive review percentage ≥ 75%) AND HLTB Main Story estimate ≤ 5 hours.
+- **FR-REC-02 (The "Forgotten Gem"):** System identifies a "Forgotten Gem": Unplayed game with rating score ≥ 75 (Metacritic where available, otherwise Steam positive review percentage ≥ 75%) AND Steam library add date > 1 year ago.
 - **FR-REC-03 (Explanation):** Every recommendation must include a text rationale (e.g., "Because you liked Hades...").
 
 ## 10. Non-Functional Requirements
