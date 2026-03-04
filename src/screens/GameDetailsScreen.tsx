@@ -7,13 +7,11 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  ParamListBase,
-  Pressable,
   Animated,
   Dimensions,
 } from 'react-native';
-import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { SteamGame, ReducedSteamGame, SteamAppData } from '../types/steam.types';
+import { useRoute, RouteProp, useNavigation, ParamListBase } from '@react-navigation/native';
+import { SteamGame, ReducedSteamGame } from '../types/steam.types';
 import { usePlayerAchievements, useGameSchema } from '../hooks/useGameDetails';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../res/theme';
@@ -62,16 +60,18 @@ const GameDetailsScreen = () => {
     if (!achievementsData?.playerstats?.achievements || !schemaData?.game?.availableGameStats?.achievements) {
       return [];
     }
-    const player achievementsList = achievementsData.playerstats.achievements;
+    const playerAchievementsList = achievementsData.playerstats.achievements;
     const schemaAchievements = schemaData.game.availableGameStats.achievements;
 
-    return playerAchievementsList.map((pa) => {
-      const schema = schemaAchievements.find((sa) => sa.name === pa.apiname);
+    type PlayerAchievement = { apiname: string; unlocktime?: number };
+    type SchemaAchievement = { name: string; displayName?: string; description?: string; icon?: string };
+    return playerAchievementsList.map((pa: PlayerAchievement) => {
+      const schema = schemaAchievements.find((sa: SchemaAchievement) => sa.name === pa.apiname);
       return {
         ...pa,
         ...schema,
       };
-    }).sort((a, b) => (b.unlocktime || 0) - (a.unlocktime || 0));
+    }).sort((a: PlayerAchievement, b: PlayerAchievement) => (b.unlocktime || 0) - (a.unlocktime || 0));
   }, [achievementsData, schemaData]);
 
 
@@ -150,7 +150,7 @@ const GameDetailsScreen = () => {
 
       return (
           <View style={styles.achievementsList}>
-              {mergedAchievements.map((item, index) => (
+              {mergedAchievements.map((item: { apiname: string; unlocktime?: number; displayName?: string; description?: string; icon?: string }, index: number) => (
                   <View key={index} style={styles.achievementItem}>
                       <Image source={{ uri: item.icon }} style={styles.achievementIcon} />
                       <View style={styles.achievementInfo}>

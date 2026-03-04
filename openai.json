@@ -1,0 +1,7 @@
+{
+  "model": "gpt-4.1-nano",
+  "messages": [{
+    "role": "user",
+    "content": "Analyze library: [{\"appid\":220,\"name\":\"Half-Life 2\",\"playtime_forever\":0,\"rtime_updated\":0,\"content_descriptorids\":[2,5],\"playtime_2weeks\":0},{\"appid\":320,\"name\":\"Half-Life 2 Deathmatch\",\"playtime_forever\":0,\"rtime_updated\":0,\"content_descriptorids\":[],\"playtime_2weeks\":0},{\"appid\":360,\"name\":\"Half-Life Deathmatch Source\",\"playtime_forever\":0,\"rtime_updated\":0,\"content_descriptorids\":[],\"playtime_2weeks\":0},{\"appid\":550,\"name\":\"Left 4 Dead 2\",\"playtime_forever\":2336,\"rtime_updated\":1608924792,\"content_descriptorids\":[2,5],\"playtime_2weeks\":0}] and suggest up to 10 games to play next based on playtime, recent activity, and genres. Respond in JSON format: {\"appids\": [list of up to 10 appids]}"
+  }]
+}
