@@ -16,6 +16,8 @@ module.exports = (api) => {
           },
         },
       ],
+      // Inline .sql files as strings — needed for Drizzle migration bundling
+      ['inline-import', { extensions: ['.sql'] }],
       ...(isTest
         ? []
         : [

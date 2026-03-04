@@ -58,6 +58,9 @@ yarn-error.log
 # Bundle artifact
 *.jsbundle
 
+# Drizzle-kit auto-generated JS migration bundle (use src/db/migrations/index.ts instead)
+src/db/migrations/migrations.js
+
 # Ruby / CocoaPods
 **/Pods/
 /vendor/bundle/

@@ -43,7 +43,7 @@ development_status:
   # Epic 1: Project Foundation & Infrastructure
   epic-1: in-progress
   1-1-project-scaffold-and-core-dependencies: done
-  1-2-local-database-and-drizzle-configuration: backlog
+  1-2-local-database-and-drizzle-configuration: done
   1-3-redux-store-mmkv-and-state-foundation: backlog
   1-4-navigation-shell-and-app-entry-point: backlog
   1-5-cicd-pipelines-and-crash-reporting: backlog
