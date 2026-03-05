@@ -1,6 +1,6 @@
 
 export const API_BASE_URLS = {
-  steam: 'http://api.steampowered.com',
+  steam: 'https://api.steampowered.com',
   store: 'https://store.steampowered.com/api',
   googleapis: 'https://generativelanguage.googleapis.com/v1beta',
 } as const;

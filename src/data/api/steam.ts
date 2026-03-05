@@ -1,6 +1,8 @@
 import Config from "react-native-config";
+import type { SteamError } from "../../shared/types/errors.types";
 import { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse } from "../../types/steam.types";
 import { steamFetch, storeFetch } from "./httpClient";
+import { API_BASE_URLS } from "../../types/httpClient.types";
 
 const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse> => {
   const params = new URLSearchParams({
@@ -40,4 +42,48 @@ const getManyAppDetails = async (appids: number[]): Promise<SteamAppData[]> => {
   return Promise.all(promises);
 };
 
-export { getOwnedGames, getAppDetails, getManyAppDetails };
+interface SteamPlayerSummary {
+  steamid: string;
+  personaname: string;
+  avatarfull: string;
+}
+
+interface SteamPlayerSummariesResponse {
+  response: {
+    players: SteamPlayerSummary[];
+  };
+}
+
+// NOTE: Uses raw fetch (not steamFetch) to inspect the HTTP status code directly.
+// steamFetch swallows non-ok responses as a generic Error and loses the status value.
+// 401/403 must be distinguished from other errors to trigger session expiry (AC4).
+const getPlayerSummaries = async (
+  apiKey: string,
+  steamId: string,
+): Promise<SteamPlayerSummariesResponse> => {
+  const queryString =
+    'key=' + encodeURIComponent(apiKey) +
+    '&steamids=' + encodeURIComponent(steamId) +
+    '&format=json';
+  const url = `${API_BASE_URLS.steam}/ISteamUser/GetPlayerSummaries/v0002/?${queryString}`;
+
+  const response = await fetch(url);
+
+  if (response.status === 401 || response.status === 403) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'UNAUTHORIZED',
+      message: `Steam API returned ${response.status}`,
+    };
+    throw steamError;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Steam API error: ${response.status}`);
+  }
+
+  return response.json() as Promise<SteamPlayerSummariesResponse>;
+};
+
+export { getOwnedGames, getAppDetails, getManyAppDetails, getPlayerSummaries };
+export type { SteamPlayerSummary, SteamPlayerSummariesResponse };

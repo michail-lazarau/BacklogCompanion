@@ -1,6 +1,7 @@
 import React from 'react';
 import { Linking } from 'react-native';
-import { render, act } from '@testing-library/react-native';
+import { render, act, waitFor } from '@testing-library/react-native';
+import * as Keychain from 'react-native-keychain';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { authReducer } from '@features/auth/store/authSlice';
@@ -19,9 +20,10 @@ const createTestStore = (isAuthenticated = false) =>
 describe('RootNavigator', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default: no initial URL
+    // Default: no initial URL, no API key in Keychain
     jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
     jest.spyOn(Linking, 'addEventListener').mockReturnValue({ remove: jest.fn() } as never);
+    (Keychain.getGenericPassword as jest.Mock).mockResolvedValue(false);
   });
 
   it('shows AuthScreen when not authenticated', () => {
@@ -33,16 +35,41 @@ describe('RootNavigator', () => {
     expect(getByText('Sign in with Steam')).toBeTruthy();
   });
 
-  it('shows tab navigator when authenticated', () => {
+  it('shows tab navigator when authenticated and API key is stored', async () => {
+    // Simulate API key present in Keychain
+    (Keychain.getGenericPassword as jest.Mock).mockResolvedValue({
+      username: 'steam',
+      password: 'MYAPIKEY',
+      service: 'steam_api_key',
+    });
+
     const { queryByText, getAllByText } = render(
       <Provider store={createTestStore(true)}>
         <RootNavigator />
       </Provider>,
     );
-    // Tab screen content + tab bar label both render "Home" — confirms navigator mounted
-    expect(getAllByText('Home').length).toBeGreaterThanOrEqual(2);
+
+    // Wait for async Keychain check to complete
+    await waitFor(() => {
+      // Tab screen content + tab bar label both render "Home" — confirms navigator mounted
+      expect(getAllByText('Home').length).toBeGreaterThanOrEqual(2);
+    });
     // Auth screen must NOT be visible
     expect(queryByText('Sign in with Steam')).toBeNull();
+  });
+
+  it('shows ApiKeyScreen when authenticated but no API key stored', async () => {
+    (Keychain.getGenericPassword as jest.Mock).mockResolvedValue(false);
+
+    const { getByPlaceholderText } = render(
+      <Provider store={createTestStore(true)}>
+        <RootNavigator />
+      </Provider>,
+    );
+
+    await waitFor(() => {
+      expect(getByPlaceholderText('Paste your Steam Web API key')).toBeTruthy();
+    });
   });
 
   it('registers a Linking url event listener on mount', () => {
