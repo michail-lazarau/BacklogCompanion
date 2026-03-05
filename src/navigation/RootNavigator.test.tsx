@@ -1,5 +1,6 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { Linking } from 'react-native';
+import { render, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { authReducer } from '@features/auth/store/authSlice';
@@ -16,13 +17,20 @@ const createTestStore = (isAuthenticated = false) =>
   });
 
 describe('RootNavigator', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default: no initial URL
+    jest.spyOn(Linking, 'getInitialURL').mockResolvedValue(null);
+    jest.spyOn(Linking, 'addEventListener').mockReturnValue({ remove: jest.fn() } as never);
+  });
+
   it('shows AuthScreen when not authenticated', () => {
     const { getByText } = render(
       <Provider store={createTestStore(false)}>
         <RootNavigator />
       </Provider>,
     );
-    expect(getByText('Auth')).toBeTruthy();
+    expect(getByText('Sign in with Steam')).toBeTruthy();
   });
 
   it('shows tab navigator when authenticated', () => {
@@ -34,6 +42,74 @@ describe('RootNavigator', () => {
     // Tab screen content + tab bar label both render "Home" — confirms navigator mounted
     expect(getAllByText('Home').length).toBeGreaterThanOrEqual(2);
     // Auth screen must NOT be visible
-    expect(queryByText('Auth')).toBeNull();
+    expect(queryByText('Sign in with Steam')).toBeNull();
+  });
+
+  it('registers a Linking url event listener on mount', () => {
+    render(
+      <Provider store={createTestStore(false)}>
+        <RootNavigator />
+      </Provider>,
+    );
+    expect(Linking.addEventListener).toHaveBeenCalledWith('url', expect.any(Function));
+  });
+
+  it('removes the Linking listener on unmount', () => {
+    const mockRemove = jest.fn();
+    jest.spyOn(Linking, 'addEventListener').mockReturnValue({ remove: mockRemove } as never);
+
+    const { unmount } = render(
+      <Provider store={createTestStore(false)}>
+        <RootNavigator />
+      </Provider>,
+    );
+    unmount();
+    expect(mockRemove).toHaveBeenCalled();
+  });
+
+  it('processes a cold-start deep link from getInitialURL and authenticates', async () => {
+    const validCallbackUrl =
+      'backlogcompanion://auth/callback?openid.claimed_id=https%3A%2F%2Fsteamcommunity.com%2Fopenid%2Fid%2F76561198002516729';
+
+    let resolveInitialUrl!: (url: string) => void;
+    const pendingPromise = new Promise<string>((res) => { resolveInitialUrl = res; });
+    jest.spyOn(Linking, 'getInitialURL').mockReturnValue(pendingPromise);
+
+    const store = createTestStore(false);
+
+    render(
+      <Provider store={store}>
+        <RootNavigator />
+      </Provider>,
+    );
+
+    await act(async () => {
+      resolveInitialUrl(validCallbackUrl);
+      await pendingPromise;
+    });
+
+    expect(store.getState().auth.isAuthenticated).toBe(true);
+    expect(store.getState().auth.steamId).toBe('76561198002516729');
+  });
+
+  it('ignores a cold-start URL that does not match the deep link prefix', async () => {
+    let resolveInitialUrl!: (url: string) => void;
+    const pendingPromise = new Promise<string>((res) => { resolveInitialUrl = res; });
+    jest.spyOn(Linking, 'getInitialURL').mockReturnValue(pendingPromise);
+
+    const store = createTestStore(false);
+
+    render(
+      <Provider store={store}>
+        <RootNavigator />
+      </Provider>,
+    );
+
+    await act(async () => {
+      resolveInitialUrl('https://someother.com/link');
+      await pendingPromise;
+    });
+
+    expect(store.getState().auth.isAuthenticated).toBe(false);
   });
 });

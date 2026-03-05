@@ -9,8 +9,10 @@ module.exports = {
     '\\.css$': '<rootDir>/__mocks__/fileMock.ts',
     '^react-native-keychain$': '<rootDir>/__mocks__/react-native-keychain.ts',
     '^@sentry/react-native$': '<rootDir>/__mocks__/@sentry/react-native.ts',
+    '^react-native-inappbrowser-reborn$': '<rootDir>/__mocks__/react-native-inappbrowser-reborn.ts',
+    '^react-native-toast-message$': '<rootDir>/__mocks__/react-native-toast-message.ts',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry)/)',
+    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry|react-native-inappbrowser-reborn)/)',
   ],
 };

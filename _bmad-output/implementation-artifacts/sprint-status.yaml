@@ -50,8 +50,8 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Steam Authentication & User Profile
-  epic-2: backlog
-  2-1-auth-screen-and-steam-openid-sign-in: backlog
+  epic-2: in-progress
+  2-1-auth-screen-and-steam-openid-sign-in: done
   2-2-steam-web-api-key-entry: backlog
   2-3-steam-profile-summary-view: backlog
   2-4-logout-and-session-clearing: backlog

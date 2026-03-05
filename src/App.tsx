@@ -3,6 +3,7 @@ import Config from 'react-native-config';
 import { useMigrations } from 'drizzle-orm/op-sqlite/migrator';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 import { RootNavigator } from './navigation/RootNavigator';
 import { Providers } from './data/QueryProvider';
 import { db } from '@db/index';
@@ -36,6 +37,7 @@ export const App = Sentry.wrap(function App() {
           <ActivityIndicator style={rootStyle} />
         </View>
       )}
+      <Toast />
     </GestureHandlerRootView>
   );
 });

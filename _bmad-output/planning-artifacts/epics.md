@@ -284,6 +284,14 @@ So that the app can make authenticated Steam API calls to fetch my library data.
 **Then** an inline error message is displayed without navigating away
 **And** the Keychain is not updated
 
+**Given** the `GetPlayerSummaries` validation call returns a 401 or 403 response
+**When** the error is received
+**Then** `useSessionExpiry.handleSteamAuthError` is called
+**And** `auth/setAuthenticated({ isAuthenticated: false, steamId: null })` is dispatched
+**And** Keychain entries for Steam ID (`service: 'steam_id'`) and API key (`service: 'steam_api_key'`) are cleared
+**And** RootNavigator routes to `AuthScreen`
+**And** a non-blocking toast informs the user: "Steam session expired. Please sign in again." (NFR-REL-02)
+
 **Given** the user has a valid API key already stored in Keychain
 **When** the app launches
 **Then** the API key entry screen is skipped entirely
@@ -366,6 +374,15 @@ So that my library data is always fresh without me having to manually trigger a 
 **Then** `librarySlice.sync_status` is set to `'error'`
 **And** exponential backoff with jitter is applied on retry
 **And** the user sees previously cached library data with no error modal (NFR-REL-01)
+
+**Given** `GetOwnedGames` returns an empty games array (0 items)
+**When** the sync engine processes the response
+**Then** the sync engine must NOT overwrite the local SQLite library with an empty dataset
+**And** `librarySlice.sync_status` is set to `'error'` with reason `'private_profile'`
+**And** a non-blocking toast informs the user: "Your Steam library is private. Go to Steam → Privacy Settings → Game Details → set to Public." (NFR-REL-01)
+**And** previously cached library data remains intact and visible
+
+> **Constraint:** Steam's `GetOwnedGames` API returns an empty array (not an error) when the user's game details are set to Private. An empty response must be treated as a private-profile error, not a valid empty library, to avoid data loss.
 
 ### Story 3.2: Library Screen — Local-First List View
 
