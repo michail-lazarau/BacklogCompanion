@@ -1,7 +1,7 @@
 import { useMigrations } from 'drizzle-orm/op-sqlite/migrator';
 import { ActivityIndicator, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import AppNavigator from './navigation/AppNavigator';
+import { RootNavigator } from './navigation/RootNavigator';
 import { Providers } from './data/QueryProvider';
 import { db } from '@db/index';
 import { allMigrations } from '@db/migrations/index';
@@ -21,7 +21,7 @@ export function App() {
     <GestureHandlerRootView style={rootStyle}>
       {success ? (
         <Providers>
-          <AppNavigator />
+          <RootNavigator />
         </Providers>
       ) : (
         <View style={rootStyle}>
