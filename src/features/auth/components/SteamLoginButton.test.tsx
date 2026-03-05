@@ -30,4 +30,10 @@ describe('SteamLoginButton', () => {
     });
     expect(InAppBrowser.openAuth).toHaveBeenCalled();
   });
+
+  it('has accessibilityState busy=false when idle', () => {
+    const { getByRole } = renderWithStore(<SteamLoginButton />);
+    const button = getByRole('button');
+    expect(button.props.accessibilityState).toEqual(expect.objectContaining({ busy: false }));
+  });
 });

@@ -81,7 +81,7 @@ describe('useSteamAuth', () => {
   });
 
   describe('clearSession', () => {
-    it('resets both Keychain entries and dispatches setAuthenticated false', async () => {
+    it('resets all Keychain entries and dispatches setAuthenticated false', async () => {
       const { wrapper, store } = createWrapper();
       const { result } = renderHook(() => useSteamAuth(), { wrapper });
 
@@ -94,6 +94,9 @@ describe('useSteamAuth', () => {
       });
       expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({
         service: STEAM_KEYCHAIN_SERVICES.STEAM_API_KEY,
+      });
+      expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({
+        service: STEAM_KEYCHAIN_SERVICES.GEMINI_API_KEY,
       });
       expect(store.getState().auth.isAuthenticated).toBe(false);
       expect(store.getState().auth.steamId).toBeNull();

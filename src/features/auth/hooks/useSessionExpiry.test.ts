@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react-native';
 import * as Keychain from 'react-native-keychain';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
-import { authReducer } from '@features/auth/store/authSlice';
+import { authReducer, setAuthenticated } from '@features/auth/store/authSlice';
 import { useSessionExpiry } from '@features/auth/hooks/useSessionExpiry';
 import type { SteamError } from '@shared/types/errors.types';
 
@@ -20,9 +20,9 @@ jest.mock('@features/auth/hooks/useSteamAuth', () => ({
 
 // react-native-toast-message is auto-mocked via __mocks__/react-native-toast-message.ts
 // useSessionExpiry.ts: `import Toast from '...'` → Babel compiles to `_toast.default.show()`
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const ToastModule = require('react-native-toast-message') as { show: jest.Mock; default: { show: jest.Mock } };
-const ToastShow = ToastModule.default.show;
+import ToastMessage from 'react-native-toast-message';
+// Toast default import compiles to _toast.default — access .show via the imported binding
+const ToastShow = (ToastMessage as unknown as { show: jest.Mock }).show;
 
 const createWrapper = () => {
   const store = configureStore({ reducer: { auth: authReducer } });
@@ -106,10 +106,10 @@ describe('useSessionExpiry', () => {
       });
 
       // Replace mock with a real implementation that uses the store's dispatch
-      const { setAuthenticated } = require('@features/auth/store/authSlice');
       mockClearSession.mockImplementationOnce(async () => {
         await (Keychain.resetGenericPassword as jest.Mock)({ service: 'steam_id' });
         await (Keychain.resetGenericPassword as jest.Mock)({ service: 'steam_api_key' });
+        await (Keychain.resetGenericPassword as jest.Mock)({ service: 'gemini_api_key' });
         store.dispatch(setAuthenticated({ isAuthenticated: false, steamId: null }));
       });
 
@@ -127,9 +127,10 @@ describe('useSessionExpiry', () => {
         } as SteamError);
       });
 
-      // Verify Keychain entries cleared (AC5: clears steam_id and steam_api_key)
+      // Verify all Keychain entries cleared (AC5: clears steam_id, steam_api_key, gemini_api_key)
       expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({ service: 'steam_id' });
       expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({ service: 'steam_api_key' });
+      expect(Keychain.resetGenericPassword).toHaveBeenCalledWith({ service: 'gemini_api_key' });
       // Verify Redux state reflects logged-out (AC5: dispatches setAuthenticated false/null)
       expect(store.getState().auth.isAuthenticated).toBe(false);
       expect(store.getState().auth.steamId).toBeNull();

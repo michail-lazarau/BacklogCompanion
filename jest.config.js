@@ -1,5 +1,6 @@
 module.exports = {
   preset: 'react-native',
+  forceExit: true,
   setupFiles: ['./node_modules/react-native-gesture-handler/jestSetup.js'],
   moduleNameMapper: {
     '^react-native-mmkv$': '<rootDir>/__mocks__/react-native-mmkv/index.ts',
@@ -7,12 +8,13 @@ module.exports = {
     '^@op-engineering/op-sqlite$': '<rootDir>/__mocks__/@op-engineering/op-sqlite.ts',
     '^drizzle-orm/op-sqlite/migrator$': '<rootDir>/__mocks__/drizzle-orm/op-sqlite/migrator.ts',
     '\\.css$': '<rootDir>/__mocks__/fileMock.ts',
+    '\\.svg$': '<rootDir>/__mocks__/svgMock.tsx',
     '^react-native-keychain$': '<rootDir>/__mocks__/react-native-keychain.ts',
     '^@sentry/react-native$': '<rootDir>/__mocks__/@sentry/react-native.ts',
     '^react-native-inappbrowser-reborn$': '<rootDir>/__mocks__/react-native-inappbrowser-reborn.ts',
     '^react-native-toast-message$': '<rootDir>/__mocks__/react-native-toast-message.ts',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry|react-native-inappbrowser-reborn)/)',
+    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry|react-native-inappbrowser-reborn|react-native-svg)/)',
   ],
 };

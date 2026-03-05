@@ -87,6 +87,7 @@ export const useSteamAuth = () => {
   const clearSession = useCallback(async (): Promise<void> => {
     await Keychain.resetGenericPassword({ service: STEAM_KEYCHAIN_SERVICES.STEAM_ID });
     await Keychain.resetGenericPassword({ service: STEAM_KEYCHAIN_SERVICES.STEAM_API_KEY });
+    await Keychain.resetGenericPassword({ service: STEAM_KEYCHAIN_SERVICES.GEMINI_API_KEY });
     dispatch(setAuthenticated({ isAuthenticated: false, steamId: null }));
   }, [dispatch]);
 

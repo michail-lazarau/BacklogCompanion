@@ -32,7 +32,9 @@ export const RootNavigator = () => {
   useEffect(() => {
     const handleUrl = (event: { url: string }) => {
       if (event.url.startsWith(DEEP_LINK_PREFIX)) {
-        void handleAuthCallback(event.url);
+        handleAuthCallback(event.url).catch((err: unknown) => {
+          console.warn('[RootNavigator] deep link callback error:', err);
+        });
       }
     };
 

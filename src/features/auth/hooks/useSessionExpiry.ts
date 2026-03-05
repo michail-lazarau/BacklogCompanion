@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import Toast from 'react-native-toast-message';
 import { useSteamAuth } from '@features/auth/hooks/useSteamAuth';
 import type { SteamError } from '@shared/types/errors.types';
@@ -5,7 +6,7 @@ import type { SteamError } from '@shared/types/errors.types';
 export const useSessionExpiry = () => {
   const { clearSession } = useSteamAuth();
 
-  const handleSteamAuthError = async (error: SteamError): Promise<void> => {
+  const handleSteamAuthError = useCallback(async (error: SteamError): Promise<void> => {
     if (error.code === 'UNAUTHORIZED') {
       await clearSession();
       Toast.show({
@@ -16,7 +17,7 @@ export const useSessionExpiry = () => {
         visibilityTime: 4000,
       });
     }
-  };
+  }, [clearSession]);
 
   return { handleSteamAuthError };
 };

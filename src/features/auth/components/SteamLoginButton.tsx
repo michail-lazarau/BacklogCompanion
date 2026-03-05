@@ -10,6 +10,7 @@ export const SteamLoginButton = () => {
       onPress={initiateLogin}
       accessibilityRole="button"
       accessibilityLabel="Sign in with Steam"
+      accessibilityState={{ busy: isLoading }}
     >
       {isLoading ? (
         <ActivityIndicator color="#66C0F4" size="small" />

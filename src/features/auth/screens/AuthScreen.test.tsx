@@ -18,9 +18,9 @@ const renderWithStore = (ui: React.ReactElement) => {
 };
 
 describe('AuthScreen', () => {
-  it('renders without crashing', () => {
-    const { getByText } = renderWithStore(<AuthScreen {...mockNavProps} />);
-    expect(getByText('BacklogCompanion')).toBeTruthy();
+  it('renders without crashing and shows Steam logo', () => {
+    const { getByTestId } = renderWithStore(<AuthScreen {...mockNavProps} />);
+    expect(getByTestId('svg-mock')).toBeTruthy();
   });
 
   it('renders the SteamLoginButton', () => {
