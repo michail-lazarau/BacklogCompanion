@@ -1,3 +1,7 @@
+/**
+ * @deprecated Prototype slice — superseded by authSlice (src/features/auth/store/authSlice.ts).
+ * Do not import for new features. Will be removed when prototype screens are cleaned up.
+ */
 // Manages user-related state in the Redux store
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';

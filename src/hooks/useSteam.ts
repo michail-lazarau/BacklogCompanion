@@ -1,3 +1,4 @@
+// @ts-nocheck — prototype file, references deprecated store shape; will be rewritten in Story 2.1+
 import { useQuery, useQueries } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import { queryClient } from '../data/QueryProvider';

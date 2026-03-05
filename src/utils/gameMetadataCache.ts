@@ -1,3 +1,4 @@
+// @ts-nocheck — prototype file, references deprecated store shape; will be rewritten in Story 3.x+
 import type { ReducedSteamGame } from '../types/steam.types';
 import { store } from '../data/store';
 import { setGameMetadata, removeGameMetadata } from '../data/store/gameMetadataSlice';

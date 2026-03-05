@@ -1,0 +1,12 @@
+export const setGenericPassword = jest.fn().mockResolvedValue(true);
+export const getGenericPassword = jest.fn().mockResolvedValue(false);
+export const resetGenericPassword = jest.fn().mockResolvedValue(true);
+export const setInternetCredentials = jest.fn().mockResolvedValue(true);
+export const getInternetCredentials = jest.fn().mockResolvedValue(false);
+export const resetInternetCredentials = jest.fn().mockResolvedValue(true);
+export const ACCESS_CONTROL = {};
+export const ACCESSIBLE = {};
+export const AUTHENTICATION_TYPE = {};
+export const BIOMETRY_TYPE = {};
+export const SECURITY_LEVEL = {};
+export const STORAGE_TYPE = {};

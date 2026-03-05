@@ -2,5 +2,6 @@
 // babel-plugin-inline-import transforms these to raw strings at build time
 declare module '*.sql' {
   const content: string;
+  // eslint-disable-next-line no-restricted-syntax
   export default content;
 }
