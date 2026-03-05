@@ -46,7 +46,7 @@ development_status:
   1-2-local-database-and-drizzle-configuration: done
   1-3-redux-store-mmkv-and-state-foundation: done
   1-4-navigation-shell-and-app-entry-point: done
-  1-5-cicd-pipelines-and-crash-reporting: backlog
+  1-5-cicd-pipelines-and-crash-reporting: done
   epic-1-retrospective: optional
 
   # Epic 2: Steam Authentication & User Profile

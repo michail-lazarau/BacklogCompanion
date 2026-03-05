@@ -92,5 +92,9 @@ src/db/migrations/migrations.js
 /.codex/
 /.cursor/
 /.gemini/
-/.github/
 /.windsurf/
+
+# BMAD agent/prompt files inside .github (keep .github/workflows tracked)
+/.github/agents/
+/.github/prompts/
+/.github/copilot-instructions.md
