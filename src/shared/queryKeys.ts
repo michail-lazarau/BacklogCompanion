@@ -9,4 +9,7 @@ export const queryKeys = {
   recommendations: {
     all: (steamId: string) => ['recommendations', steamId] as const,
   },
+  profile: {
+    summary: (steamId: string) => ['profile', steamId, 'summary'] as const,
+  },
 } as const;

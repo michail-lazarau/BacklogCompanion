@@ -13,8 +13,11 @@ module.exports = {
     '^@sentry/react-native$': '<rootDir>/__mocks__/@sentry/react-native.ts',
     '^react-native-inappbrowser-reborn$': '<rootDir>/__mocks__/react-native-inappbrowser-reborn.ts',
     '^react-native-toast-message$': '<rootDir>/__mocks__/react-native-toast-message.ts',
+    '^@d11/react-native-fast-image$': '<rootDir>/__mocks__/@d11/react-native-fast-image.tsx',
+    '^react-native-reanimated$': '<rootDir>/node_modules/react-native-reanimated/mock',
+    '^react-native-worklets$': '<rootDir>/node_modules/react-native-worklets/src/mock',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry|react-native-inappbrowser-reborn|react-native-svg)/)',
+    'node_modules/(?!(react-native|@react-native|@react-navigation|react-native-reanimated|react-native-worklets|@shopify/flash-list|@d11/react-native-fast-image|@gorhom/bottom-sheet|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-mmkv|nativewind|react-redux|@reduxjs|redux-persist|react-native-keyboard-aware-scroll-view|react-native-iphone-x-helper|react-native-config|react-native-toast-message|immer|react-native-keychain|@sentry|react-native-inappbrowser-reborn|react-native-svg)/)',
   ],
 };
