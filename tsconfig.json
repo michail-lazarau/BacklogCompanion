@@ -10,7 +10,8 @@
       "@features/*": ["src/features/*"],
       "@shared/*": ["src/shared/*"],
       "@db/*": ["src/db/*"],
-      "@navigation/*": ["src/navigation/*"]
+      "@navigation/*": ["src/navigation/*"],
+      "@res/*": ["src/res/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

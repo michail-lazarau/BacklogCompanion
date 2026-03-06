@@ -1,51 +1,20 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SteamLoginButton } from '@features/auth/components/SteamLoginButton';
+import { tokens } from '@res/tokens';
 import type { AuthScreenProps } from '@navigation/types';
-import SteamLogo from '../../../res/SteamLogos/Steam Logo Full white (R).svg';
+import SteamLogo from '@res/SteamLogos/Steam Logo Full white (R).svg';
 
 export const AuthScreen = (_props: AuthScreenProps) => (
-  <SafeAreaView style={styles.root}>
-    <View style={styles.container}>
-      <View style={styles.brandingArea}>
-        <SteamLogo width={240} height={122} style={styles.logo} />
-        <Text style={styles.subtitle}>Your Steam backlog, organized.</Text>
+  <SafeAreaView className="flex-1 bg-surface-900">
+    <View className="flex-1 justify-center items-center px-6">
+      <View className="items-center mb-12">
+        <SteamLogo width={240} height={122} style={{ marginBottom: tokens.spacing.md }} />
+        <Text className="text-primary text-base font-rubik">Your Steam backlog, organized.</Text>
       </View>
-      <View style={styles.card}>
+      <View className="bg-surface-800 rounded-card p-6 w-full items-center">
         <SteamLoginButton />
       </View>
     </View>
   </SafeAreaView>
 );
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#171A21',
-  },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  brandingArea: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  logo: {
-    marginBottom: 16,
-  },
-  subtitle: {
-    color: '#66C0F4',
-    fontSize: 16,
-    fontFamily: 'Rubik-Regular',
-  },
-  card: {
-    backgroundColor: '#2A475E',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    alignItems: 'center',
-  },
-});

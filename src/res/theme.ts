@@ -1,3 +1,8 @@
+/**
+ * @deprecated This file is from the prototype phase and uses incorrect/mismatched values.
+ * Use `src/res/tokens.ts` for all new code.
+ * Prototype screens in `src/screens/` still reference this file — do not delete until those screens are removed.
+ */
 export const colors = {
   primary: '#4299E1',
   primaryPressed: '#3182CE',

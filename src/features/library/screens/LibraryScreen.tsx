@@ -1,11 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 
 export const LibraryScreen = () => (
-  <View style={styles.container}>
+  <View className="flex-1 bg-surface-900 justify-center items-center">
     <Text>Library</Text>
   </View>
 );
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-});

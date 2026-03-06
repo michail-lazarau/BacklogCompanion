@@ -13,6 +13,7 @@ module.exports = (api) => {
             '@shared': './src/shared',
             '@db': './src/db',
             '@navigation': './src/navigation',
+            '@res': './src/res',
           },
         },
       ],

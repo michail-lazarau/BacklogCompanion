@@ -1,39 +1,23 @@
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator } from 'react-native';
 import { useSteamAuth } from '@features/auth/hooks/useSteamAuth';
+import { tokens } from '@res/tokens';
 
 export const SteamLoginButton = () => {
   const { initiateLogin, isLoading } = useSteamAuth();
 
   return (
     <TouchableOpacity
-      style={styles.button}
+      className="bg-surface-800 rounded-xl py-3.5 px-8 items-center justify-center min-h-[52px]"
       onPress={initiateLogin}
       accessibilityRole="button"
       accessibilityLabel="Sign in with Steam"
       accessibilityState={{ busy: isLoading }}
     >
       {isLoading ? (
-        <ActivityIndicator color="#66C0F4" size="small" />
+        <ActivityIndicator color={tokens.colors.primary} size="small" />
       ) : (
-        <Text style={styles.label}>Sign in with Steam</Text>
+        <Text className="text-primary text-base font-rubik" style={{ fontFamily: tokens.fontFamily.medium }}>Sign in with Steam</Text>
       )}
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: '#2A475E',
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 52,
-  },
-  label: {
-    color: '#66C0F4',
-    fontSize: 16,
-    fontFamily: 'Rubik-Medium',
-  },
-});
