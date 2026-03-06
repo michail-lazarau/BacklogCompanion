@@ -4,11 +4,13 @@ import FastImage from '@d11/react-native-fast-image';
 import { tokens } from '@res/tokens';
 import { useProfileSummary } from '@features/auth/hooks/useProfileSummary';
 import { ProfileSkeleton } from '@features/auth/components/ProfileSkeleton';
+import { useLogout } from '@features/auth/hooks/useLogout';
 
 const AVATAR_SIZE = 80;
 
 export const ProfileScreen = () => {
   const { data, isLoading, isError, refetch } = useProfileSummary();
+  const { initiateLogout } = useLogout();
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -58,6 +60,16 @@ export const ProfileScreen = () => {
                 Showing cached data — offline
               </Text>
             )}
+            <TouchableOpacity
+              onPress={initiateLogout}
+              className="mt-8 px-6 py-3 rounded-lg bg-surface-800"
+              accessibilityRole="button"
+              accessibilityLabel="Sign out of Steam account"
+            >
+              <Text className="text-base font-rubik text-destructive text-center">
+                Sign Out
+              </Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View className="flex-1 justify-center items-center pt-12">

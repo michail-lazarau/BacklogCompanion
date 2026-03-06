@@ -23,6 +23,12 @@ jest.mock('@features/auth/components/ProfileSkeleton', () => ({
   },
 }));
 
+// Mock useLogout — isolate from hook internals
+const mockInitiateLogout = jest.fn();
+jest.mock('@features/auth/hooks/useLogout', () => ({
+  useLogout: () => ({ initiateLogout: mockInitiateLogout }),
+}));
+
 const MOCK_PLAYER = {
   steamid: '76561198002516729',
   personaname: 'SteamUser42',
@@ -36,6 +42,7 @@ describe('ProfileScreen', () => {
     mockQueryState.isLoading = false;
     mockQueryState.isError = false;
     mockQueryState.refetch = mockRefetch;
+    mockInitiateLogout.mockReset();
   });
 
   it('renders ProfileSkeleton while loading', () => {
@@ -105,5 +112,49 @@ describe('ProfileScreen', () => {
 
     expect(getByText('SteamUser42')).toBeTruthy();
     expect(getByText('Showing cached data — offline')).toBeTruthy();
+  });
+
+  it('renders Sign Out button when profile data is loaded', () => {
+    mockQueryState.data = MOCK_PLAYER;
+
+    const { getByText } = render(<ProfileScreen />);
+
+    expect(getByText('Sign Out')).toBeTruthy();
+  });
+
+  it('tapping Sign Out calls initiateLogout', () => {
+    mockQueryState.data = MOCK_PLAYER;
+
+    const { getByText } = render(<ProfileScreen />);
+
+    fireEvent.press(getByText('Sign Out'));
+
+    expect(mockInitiateLogout).toHaveBeenCalledTimes(1);
+  });
+
+  it('does NOT render Sign Out button in loading state', () => {
+    mockQueryState.isLoading = true;
+
+    const { queryByText } = render(<ProfileScreen />);
+
+    expect(queryByText('Sign Out')).toBeNull();
+  });
+
+  it('does NOT render Sign Out button in error-no-data state', () => {
+    mockQueryState.isError = true;
+    mockQueryState.data = undefined;
+
+    const { queryByText } = render(<ProfileScreen />);
+
+    expect(queryByText('Sign Out')).toBeNull();
+  });
+
+  it('does NOT render Sign Out button when data is null (unavailable state)', () => {
+    mockQueryState.data = null;
+    mockQueryState.isError = false;
+
+    const { queryByText } = render(<ProfileScreen />);
+
+    expect(queryByText('Sign Out')).toBeNull();
   });
 });

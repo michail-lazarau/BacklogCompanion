@@ -55,7 +55,7 @@ development_status:
   2-1-auth-screen-and-steam-openid-sign-in: done
   2-2-steam-web-api-key-entry: done
   2-3-steam-profile-summary-view: done
-  2-4-logout-and-session-clearing: backlog
+  2-4-logout-and-session-clearing: done
   epic-2-retrospective: optional
 
   # Epic 3: Steam Library — Sync, Browse & Search
