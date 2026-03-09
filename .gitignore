@@ -22,6 +22,7 @@ DerivedData
 *.xcuserstate
 **/.xcode.env.local
 ios/tmp.xcconfig
+ios/Podfile.lock
 ios/BacklogCompanion.xcodeproj/project.pbxproj
 
 # Android/IntelliJ

@@ -1,6 +1,7 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet } from 'react-native';
 import { colors } from '../res/theme';
+import { tokens } from '@res/tokens';
 import { AIScreen, LibraryScreen } from '../screens';
 import { HomeScreen } from '@features/recommendations/screens/HomeScreen';
 import { LibraryScreen as CanonicalLibraryScreen } from '@features/library/screens/LibraryScreen';
@@ -59,6 +60,7 @@ export const MainTabNavigator = () => (
       tabBarActiveTintColor: colors.primary,
       tabBarInactiveTintColor: colors.inactive,
       headerShown: false,
+      tabBarStyle: { backgroundColor: tokens.colors.surface900 },
     }}
   >
     <CanonicalTab.Screen name="HomeTab" component={HomeScreen} options={{ tabBarLabel: 'Home' }} />
