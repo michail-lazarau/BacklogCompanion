@@ -11,13 +11,18 @@ export const STEAM_KEYCHAIN_SERVICES = {
   GEMINI_API_KEY: 'gemini_api_key',
 } as const;
 
-const CALLBACK_URL = 'backlogcompanion://auth/callback';
+// Steam OpenID requires https:// for return_to/realm — custom schemes are rejected.
+// We use a GitHub Pages shim (docs/steam-callback/index.html) that forwards
+// openid.* params to the backlogcompanion:// deep link.
+// ASWebAuthenticationSession (openAuth) then intercepts the backlogcompanion:// redirect.
+const DEEP_LINK_SCHEME = 'backlogcompanion://';
+const CALLBACK_SHIM_URL = 'https://michail-lazarau.github.io/BacklogCompanion/steam-callback';
 const STEAM_OPENID_URL =
   'https://steamcommunity.com/openid/login' +
   '?openid.ns=http://specs.openid.net/auth/2.0' +
   '&openid.mode=checkid_setup' +
-  '&openid.return_to=' + encodeURIComponent(CALLBACK_URL) +
-  '&openid.realm=' + encodeURIComponent(CALLBACK_URL) +
+  '&openid.return_to=' + encodeURIComponent(CALLBACK_SHIM_URL) +
+  '&openid.realm=' + encodeURIComponent('https://michail-lazarau.github.io/BacklogCompanion/') +
   '&openid.identity=http://specs.openid.net/auth/2.0/identifier_select' +
   '&openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select';
 
@@ -60,9 +65,11 @@ export const useSteamAuth = () => {
     setIsLoading(true);
     try {
       if (await InAppBrowser.isAvailable()) {
+        // Steam redirects to the GitHub Pages shim, which redirects to
+        // backlogcompanion://. ASWebAuthenticationSession intercepts that.
         const result = await InAppBrowser.openAuth(
           STEAM_OPENID_URL,
-          'backlogcompanion://',
+          DEEP_LINK_SCHEME,
           {
             ephemeralWebSession: false,
             showTitle: false,
@@ -73,7 +80,6 @@ export const useSteamAuth = () => {
         if (result.type === 'success' && result.url) {
           await handleAuthCallback(result.url);
         }
-        // result.type === 'cancel' → user dismissed browser (AC4: no error shown)
       } else {
         await Linking.openURL(STEAM_OPENID_URL);
       }

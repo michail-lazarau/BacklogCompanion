@@ -4,16 +4,36 @@
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "types": ["jest"],
+    "types": [
+      "jest"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@features/*": ["src/features/*"],
-      "@shared/*": ["src/shared/*"],
-      "@db/*": ["src/db/*"],
-      "@navigation/*": ["src/navigation/*"],
-      "@res/*": ["src/res/*"]
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@db/*": [
+        "src/db/*"
+      ],
+      "@navigation/*": [
+        "src/navigation/*"
+      ],
+      "@res/*": [
+        "src/res/*"
+      ]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules", "**/Pods", "__mocks__"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "nativewind-env.d.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/Pods",
+    "__mocks__"
+  ]
 }

@@ -38,27 +38,27 @@
 			<dict>
 				<key>NSIncludesSubdomains</key>
 				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
 				<false/>
 			</dict>
 			<key>store.steampowered.com</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
 				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
 				<false/>
 			</dict>
 			<key>generativelanguage.googleapis.com</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
 				<true/>
-				<key>NSTemporaryExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSThirdPartyExceptionRequiresForwardSecrecy</key>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
 				<false/>
 			</dict>
 		</dict>

@@ -104,7 +104,7 @@ describe('useSteamAuth', () => {
   });
 
   describe('initiateLogin', () => {
-    it('calls InAppBrowser.openAuth with correct Steam OpenID URL and callback scheme', async () => {
+    it('calls InAppBrowser.openAuth with correct Steam OpenID URL and deep link scheme', async () => {
       const { wrapper } = createWrapper();
       const { result } = renderHook(() => useSteamAuth(), { wrapper });
 
@@ -116,7 +116,6 @@ describe('useSteamAuth', () => {
 
       const [calledUrl, calledScheme] = (InAppBrowser.openAuth as jest.Mock).mock.calls[0] as [string, string, unknown];
 
-      // Verify callback scheme
       expect(calledScheme).toBe('backlogcompanion://');
 
       // Verify all 6 required OpenID parameters are present in the URL
@@ -124,7 +123,7 @@ describe('useSteamAuth', () => {
       expect(calledUrl).toContain('openid.ns=http://specs.openid.net/auth/2.0');
       expect(calledUrl).toContain('openid.mode=checkid_setup');
       expect(calledUrl).toContain('openid.return_to=');
-      expect(calledUrl).toContain(encodeURIComponent('backlogcompanion://auth/callback'));
+      expect(calledUrl).toContain(encodeURIComponent('michail-lazarau.github.io'));
       expect(calledUrl).toContain('openid.realm=');
       expect(calledUrl).toContain('openid.identity=http://specs.openid.net/auth/2.0/identifier_select');
       expect(calledUrl).toContain('openid.claimed_id=http://specs.openid.net/auth/2.0/identifier_select');
