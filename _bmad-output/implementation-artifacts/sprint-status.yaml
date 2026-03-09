@@ -62,7 +62,7 @@ development_status:
   epic-3: in-progress
   3-0-network-http-client: done
   3-1-steam-library-sync-engine: done
-  3-2-library-screen-local-first-list-view: backlog
+  3-2-library-screen-local-first-list-view: done
   3-3-library-filter-and-sort-controls: backlog
   3-4-instant-local-game-search: backlog
   epic-3-retrospective: optional

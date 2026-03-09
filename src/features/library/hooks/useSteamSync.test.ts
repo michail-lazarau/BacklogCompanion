@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
@@ -50,7 +51,11 @@ jest.mock('@db/schema', () => ({
     rtimeLastPlayed: 'rtime_last_played',
     imgIconUrl: 'img_icon_url',
     headerImage: 'header_image',
+    hltbMain: 'hltb_main',
+    hltbExtra: 'hltb_extra',
+    hltbComplete: 'hltb_complete',
     lastSyncedAt: 'last_synced_at',
+    hltbCachedAt: 'hltb_cached_at',
   },
 }));
 
@@ -83,11 +88,13 @@ const createTestStore = (authOverrides: Record<string, unknown> = {}) =>
 
 type TestStore = ReturnType<typeof createTestStore>;
 
-const makeWrapper = (store: TestStore) =>
-  function Wrapper({ children }: { children: React.ReactNode }) {
+const makeWrapper = (store: TestStore) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return function Wrapper({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return React.createElement(Provider, { store, children } as any);
+    return React.createElement(Provider, { store, children: React.createElement(QueryClientProvider, { client: queryClient }, children) } as any);
   };
+};
 
 // --- Sample data ---
 
@@ -350,6 +357,14 @@ describe('useSteamSync — UNAUTHORIZED error (AC4)', () => {
 });
 
 describe('useSteamSync — API error / backoff (AC4)', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
   it('dispatches setSyncError api_error on generic API failure', async () => {
     mockGetOwnedGamesWithKey.mockRejectedValue(new Error('Steam API error: 429'));
 
@@ -428,6 +443,48 @@ describe('useSteamSync — triggerSync (manual refresh)', () => {
     });
 
     expect(mockGetOwnedGamesWithKey).toHaveBeenCalledTimes(2);
+    unmount();
+  });
+});
+
+describe('useSteamSync — MMKV library snapshot (Story 3.2)', () => {
+  it('writes library_snapshot to MMKV after successful full sync', async () => {
+    mockGetOwnedGamesWithKey.mockResolvedValue({
+      response: { game_count: 1, games: [makeGame(570)] },
+    });
+
+    const store = createTestStore();
+    const { unmount } = renderHook(() => useSteamSync(), { wrapper: makeWrapper(store) });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockMmkvSet).toHaveBeenCalledWith('library_snapshot', expect.any(String));
+    // Snapshot value is valid JSON
+    const snapshotCall = mockMmkvSet.mock.calls.find(
+      (call: unknown[]) => call[0] === 'library_snapshot',
+    );
+    expect(snapshotCall).toBeDefined();
+    expect(() => JSON.parse(snapshotCall![1] as string)).not.toThrow();
+    unmount();
+  });
+
+  it('does NOT write library_snapshot on incremental sync', async () => {
+    const recentTs = (Date.now() - 60_000).toString();
+    mockMmkvGetString.mockReturnValue(recentTs);
+    mockGetRecentlyPlayedGamesWithKey.mockResolvedValue({
+      response: { total_count: 0, games: [] },
+    });
+
+    const store = createTestStore();
+    const { unmount } = renderHook(() => useSteamSync(), { wrapper: makeWrapper(store) });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockMmkvSet).not.toHaveBeenCalledWith('library_snapshot', expect.anything());
     unmount();
   });
 });

@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import * as Keychain from 'react-native-keychain';
 import Toast from 'react-native-toast-message';
 import { sql } from 'drizzle-orm';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAppSelector, useAppDispatch } from '@shared/hooks/reduxHooks';
 import { setSyncStatus, setSyncError } from '@features/library/store/librarySlice';
 import { useSessionExpiry } from '@features/auth/hooks/useSessionExpiry';
@@ -13,6 +14,7 @@ import { steamGames } from '@db/schema';
 import type { NewSteamGame } from '@db/schema';
 import { mmkv } from '../../../data/mmkv';
 import { SYNC_THROTTLE_MS, MMKV_KEYS } from '@shared/constants';
+import { queryKeys } from '@shared/queryKeys';
 import type { SteamError } from '@shared/types/errors.types';
 
 const isSteamError = (e: unknown): e is SteamError =>
@@ -127,6 +129,7 @@ const applyDeltaSync = async (games: SteamGame[]): Promise<void> => {
  */
 export const useSteamSync = () => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const steamId = useAppSelector((state) => state.auth.steamId);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const { handleSteamAuthError } = useSessionExpiry();
@@ -155,6 +158,7 @@ export const useSteamSync = () => {
       const isThrottled = Date.now() - lastFullSync < SYNC_THROTTLE_MS;
 
       let games: SteamGame[];
+      let wasFullSync = false;
 
       if (isThrottled) {
         // Incremental: recently played only
@@ -181,13 +185,37 @@ export const useSteamSync = () => {
 
         // Update throttle timestamp only on successful full sync
         mmkv.set(MMKV_KEYS.LAST_FULL_SYNC, Date.now().toString());
+        wasFullSync = true;
       }
 
       // Delta detection + batch upsert
       await applyDeltaSync(games);
 
+      // Write MMKV snapshot only after full sync (not incremental) — used as placeholderData
+      // by useGameLibrary for instant cold-start render (Story 3.2).
+      // Excludes Date-mode fields (lastSyncedAt, hltbCachedAt) to avoid JSON serialization issues.
+      if (wasFullSync) {
+        const snapshotRows = await db
+          .select({
+            appId: steamGames.appId,
+            name: steamGames.name,
+            playtimeForever: steamGames.playtimeForever,
+            playtime2weeks: steamGames.playtime2weeks,
+            headerImage: steamGames.headerImage,
+            imgIconUrl: steamGames.imgIconUrl,
+            rtimeLastPlayed: steamGames.rtimeLastPlayed,
+            hltbMain: steamGames.hltbMain,
+            hltbExtra: steamGames.hltbExtra,
+            hltbComplete: steamGames.hltbComplete,
+          })
+          .from(steamGames);
+        mmkv.set(MMKV_KEYS.LIBRARY_SNAPSHOT, JSON.stringify(snapshotRows));
+      }
+
       retryCountRef.current = 0;
       dispatch(setSyncStatus('idle'));
+      // Invalidate the games query so useGameLibrary refetches from SQLite
+      await queryClient.invalidateQueries({ queryKey: queryKeys.games.all(steamId) });
     } catch (e: unknown) {
       if (isSteamError(e) && e.code === 'UNAUTHORIZED') {
         await handleSteamAuthError(e);
@@ -204,7 +232,7 @@ export const useSteamSync = () => {
         retryTimeoutRef.current = setTimeout(() => { runSyncRef.current().catch(() => { /* backoff retry — silent */ }); }, delay);
       }
     }
-  }, [isAuthenticated, steamId, dispatch, handleSteamAuthError]);
+  }, [isAuthenticated, steamId, dispatch, handleSteamAuthError, queryClient]);
 
   // Keep ref up-to-date with latest runSync after every render
   useEffect(() => {
