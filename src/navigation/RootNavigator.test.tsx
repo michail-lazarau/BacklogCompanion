@@ -13,7 +13,7 @@ const createTestStore = (isAuthenticated = false) =>
     reducer: { auth: authReducer, library: libraryReducer },
     preloadedState: {
       auth: { isAuthenticated, steamId: null },
-      library: { sync_status: 'idle' as const, activeFilter: null, activeSort: 'alphabetical' },
+      library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter: null, activeSort: 'alphabetical' },
     },
   });
 

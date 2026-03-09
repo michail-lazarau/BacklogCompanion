@@ -21,6 +21,8 @@ BacklogCompanion is a mobile application for managing video game backlogs, integ
 
 ### 3. Guides & Operations
 - **[Development Guide](development-guide.md)**: Setup, building, running, and testing instructions.
+- **[Steam Auth & Deep Linking](steam-auth-deeplink.md)**: How Steam OpenID login works via the GitHub Pages shim and iOS custom URL scheme.
+- **[Steam Library Sync Engine](steam-library-sync.md)**: How `useSteamSync` fetches, throttles, delta-detects, and persists the Steam game library.
 - **[Project Context](../_bmad-output/project-context.md)**: Critical implementation rules and patterns for AI agents.
 
 ## Quick Links

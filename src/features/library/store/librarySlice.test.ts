@@ -1,9 +1,10 @@
-import { libraryReducer, setSyncStatus, setActiveFilter, setActiveSort } from './librarySlice';
+import { libraryReducer, setSyncStatus, setSyncError, setActiveFilter, setActiveSort } from './librarySlice';
 
 describe('librarySlice', () => {
   it('has correct initial state', () => {
     const state = libraryReducer(undefined, { type: '@@INIT' });
     expect(state.sync_status).toBe('idle');
+    expect(state.syncErrorReason).toBeNull();
     expect(state.activeFilter).toBeNull();
     expect(state.activeSort).toBe('alphabetical');
   });
@@ -22,6 +23,25 @@ describe('librarySlice', () => {
     const syncing = libraryReducer(undefined, setSyncStatus('syncing'));
     const state = libraryReducer(syncing, setSyncStatus('idle'));
     expect(state.sync_status).toBe('idle');
+  });
+
+  it('setSyncStatus idle resets syncErrorReason to null', () => {
+    const errored = libraryReducer(undefined, setSyncError('api_error'));
+    const state = libraryReducer(errored, setSyncStatus('idle'));
+    expect(state.sync_status).toBe('idle');
+    expect(state.syncErrorReason).toBeNull();
+  });
+
+  it('setSyncError sets sync_status to error and records private_profile reason', () => {
+    const state = libraryReducer(undefined, setSyncError('private_profile'));
+    expect(state.sync_status).toBe('error');
+    expect(state.syncErrorReason).toBe('private_profile');
+  });
+
+  it('setSyncError sets sync_status to error and records api_error reason', () => {
+    const state = libraryReducer(undefined, setSyncError('api_error'));
+    expect(state.sync_status).toBe('error');
+    expect(state.syncErrorReason).toBe('api_error');
   });
 
   it('setActiveFilter updates activeFilter', () => {

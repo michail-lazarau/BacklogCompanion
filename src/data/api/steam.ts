@@ -1,9 +1,10 @@
 import Config from "react-native-config";
-import type { SteamError } from "../../shared/types/errors.types";
-import { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse } from "../../types/steam.types";
+import type { SteamError } from "@shared/types/errors.types";
+import type { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse, GetRecentlyPlayedGamesResponse } from "@shared/types/steam.types";
 import { steamFetch, storeFetch } from "./httpClient";
-import { API_BASE_URLS } from "../../types/httpClient.types";
+import { API_BASE_URLS } from "@shared/types/httpClient.types";
 
+/** @deprecated Prototype only — reads API key from env var. Use getOwnedGamesWithKey (Keychain) instead. */
 const getOwnedGames = (steamId: string): Promise<SteamOwnedGamesResponse> => {
   const params = new URLSearchParams({
     key: Config.STEAM_API_KEY,
@@ -90,6 +91,67 @@ const getPlayerSummaries = async (
   }
 
   return data;
+};
+
+// NOTE: Uses raw fetch to preserve HTTP status code for 401/403 detection.
+// The user-supplied API key is read from Keychain (production pattern) — not Config.STEAM_API_KEY.
+export const getOwnedGamesWithKey = async (
+  apiKey: string,
+  steamId: string,
+): Promise<SteamOwnedGamesResponse> => {
+  const queryString =
+    'key=' + encodeURIComponent(apiKey) +
+    '&steamid=' + encodeURIComponent(steamId) +
+    '&format=json' +
+    '&include_appinfo=1';
+  const url = `${API_BASE_URLS.steam}/IPlayerService/GetOwnedGames/v0001/?${queryString}`;
+
+  const response = await fetch(url);
+
+  if (response.status === 401 || response.status === 403) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'UNAUTHORIZED',
+      message: `Steam API returned ${response.status}`,
+    };
+    throw steamError;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Steam API error: ${response.status}`);
+  }
+
+  return (await response.json()) as SteamOwnedGamesResponse;
+};
+
+export const getRecentlyPlayedGamesWithKey = async (
+  apiKey: string,
+  steamId: string,
+  count: number = 10,
+): Promise<GetRecentlyPlayedGamesResponse> => {
+  const queryString =
+    'key=' + encodeURIComponent(apiKey) +
+    '&steamid=' + encodeURIComponent(steamId) +
+    '&count=' + count +
+    '&format=json';
+  const url = `${API_BASE_URLS.steam}/IPlayerService/GetRecentlyPlayedGames/v0001/?${queryString}`;
+
+  const response = await fetch(url);
+
+  if (response.status === 401 || response.status === 403) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'UNAUTHORIZED',
+      message: `Steam API returned ${response.status}`,
+    };
+    throw steamError;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Steam API error: ${response.status}`);
+  }
+
+  return (await response.json()) as GetRecentlyPlayedGamesResponse;
 };
 
 export { getOwnedGames, getAppDetails, getManyAppDetails, getPlayerSummaries };
