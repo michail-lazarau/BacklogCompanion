@@ -82,7 +82,14 @@ const getPlayerSummaries = async (
     throw new Error(`Steam API error: ${response.status}`);
   }
 
-  return response.json() as Promise<SteamPlayerSummariesResponse>;
+  const data = await response.json() as SteamPlayerSummariesResponse;
+
+  // Steam returns 200 with empty players for invalid/unauthorized keys
+  if (!data?.response?.players?.length) {
+    throw new Error('Steam API returned no players — API key may be invalid or not yet active');
+  }
+
+  return data;
 };
 
 export { getOwnedGames, getAppDetails, getManyAppDetails, getPlayerSummaries };
