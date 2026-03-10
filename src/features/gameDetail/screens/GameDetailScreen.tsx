@@ -27,6 +27,9 @@ const CAPSULE_HEIGHT = 43;
 const CAPSULE_WIDTH = 115;
 const steamCapsuleUrl = (appId: number) =>
   `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/capsule_231x87.jpg`;
+// Portrait cover art — used as fixed blurred backdrop only
+const steamLibraryUrl = (appId: number) =>
+  `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/library_600x900.jpg`;
 
 export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) => {
   const { appId } = route.params;
@@ -34,14 +37,11 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
   const { width, height } = useWindowDimensions();
   const goBack = useCallback(() => navigation.goBack(), [navigation]);
 
-  // Portrait: fit the Steam header image (460×215) exactly at screen width — no cropping.
-  // Landscape: fixed height (original behaviour) — image fills the wider screen naturally.
   const isLandscape = width > height;
   const headerHeight = isLandscape ? LANDSCAPE_HEADER_HEIGHT : width * STEAM_HEADER_RATIO;
-  const parallaxBuffer = Math.ceil(headerHeight * PARALLAX_RATIO);
   // Fade in after the hero image has fully scrolled out of view
   const compactBarFadeStart = headerHeight - 20;
-  const compactBarFadeEnd = headerHeight + 40;
+  const compactBarFadeEnd = headerHeight + 120;
 
   const scrollY = useSharedValue(0);
 
@@ -51,6 +51,16 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
 
   const animatedImageStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: scrollY.value * PARALLAX_RATIO }],
+  }));
+
+  // Backdrop fades in only after the parallax hero has exited the viewport
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      scrollY.value,
+      [compactBarFadeStart, compactBarFadeEnd],
+      [0, 1],
+      Extrapolation.CLAMP,
+    ),
   }));
 
   const compactBarStyle = useAnimatedStyle(() => ({
@@ -89,6 +99,16 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
 
   return (
     <View style={styles.root}>
+      {/* Fixed backdrop: library_600x900 cover art + dark overlay — fades in after hero exits */}
+      <Animated.View style={[styles.backdrop, backdropStyle]}>
+        <FastImage
+          source={{ uri: steamLibraryUrl(appId), priority: FastImage.priority.low }}
+          style={styles.backdropImage}
+          resizeMode={FastImage.resizeMode.cover}
+        />
+        <View style={styles.backdropOverlay} />
+      </Animated.View>
+
       {/* Compact bar — fades in after hero exits; capsule image + title */}
       <Animated.View style={[styles.compactBar, compactBarStyle]} pointerEvents="none">
         <SafeAreaView edges={['top']} style={styles.compactBarInner}>
@@ -120,10 +140,11 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
         scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
       >
+        {/* Parallax hero — header.jpg scrolls at 30% speed over the backdrop */}
         <Animated.View style={[styles.headerContainer, { height: headerHeight }, animatedImageStyle]}>
           <FastImage
             source={{ uri: game.headerImage ?? undefined, priority: FastImage.priority.high }}
-            style={[styles.heroImage, { height: headerHeight + parallaxBuffer }]}
+            style={[styles.heroImage, { height: headerHeight }]}
             resizeMode={FastImage.resizeMode.cover}
           />
         </Animated.View>
@@ -144,6 +165,28 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: tokens.colors.surface900,
+  },
+  backdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  backdropImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  backdropOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(23, 26, 33, 0.78)',
   },
   notFoundBack: {
     color: tokens.colors.primary,
@@ -184,7 +227,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 5,
-    backgroundColor: tokens.colors.surface900,
+    backgroundColor: 'rgba(23, 26, 33, 0.92)',
   },
   compactBarInner: {
     flexDirection: 'row',
