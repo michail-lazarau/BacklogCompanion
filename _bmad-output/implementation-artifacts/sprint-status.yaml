@@ -64,7 +64,7 @@ development_status:
   3-1-steam-library-sync-engine: done
   3-2-library-screen-local-first-list-view: done
   3-3-library-filter-and-sort-controls: done
-  3-4-instant-local-game-search: backlog
+  3-4-instant-local-game-search: done
   epic-3-retrospective: optional
 
   # Epic 4: Game Details & Personal Backlog Tracking

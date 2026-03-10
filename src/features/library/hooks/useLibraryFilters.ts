@@ -37,16 +37,23 @@ export const sortGames = (games: SteamGame[], sort: SortOption): SteamGame[] => 
   }
 };
 
-export const useLibraryFilters = () => {
+export const searchGames = (games: SteamGame[], query: string): SteamGame[] => {
+  if (!query.trim()) return games;
+  const lower = query.toLowerCase();
+  return games.filter((g) => g.name.toLowerCase().includes(lower));
+};
+
+export const useLibraryFilters = (searchQuery: string = '') => {
   const activeFilter = useAppSelector((state) => state.library.activeFilter);
   const activeSort = useAppSelector((state) => state.library.activeSort);
   const { data: games, ...rest } = useGameLibrary();
 
   const data = useMemo(() => {
     if (!games) return undefined;
-    const filtered = filterGames(games, activeFilter);
+    const searched = searchGames(games, searchQuery);
+    const filtered = filterGames(searched, activeFilter);
     return sortGames(filtered, activeSort);
-  }, [games, activeFilter, activeSort]);
+  }, [games, searchQuery, activeFilter, activeSort]);
 
   return { ...rest, data };
 };

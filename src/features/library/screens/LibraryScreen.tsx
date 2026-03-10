@@ -11,9 +11,13 @@ import { useLibraryFilters } from '../hooks/useLibraryFilters';
 import { GameCard } from '../components/GameCard';
 import { LibraryListSkeleton } from '../components/LibraryListSkeleton';
 import { FilterSheet } from '../components/FilterSheet';
+import { SearchBar } from '../components/SearchBar';
+import { useDebounce } from '@shared/hooks/useDebounce';
 import { OfflineBanner } from '@shared/components/OfflineBanner';
 import { tokens } from '@res/tokens';
 import type { SteamGame } from '@db/schema';
+
+const SEARCH_DEBOUNCE_MS = 50;
 
 const FILTER_LABELS: Record<FilterOption, string> = {
   unplayed: 'Unplayed',
@@ -75,16 +79,19 @@ export const LibraryScreen = () => {
   const syncStatus = useAppSelector((state) => state.library.sync_status);
   const activeFilter = useAppSelector((state) => state.library.activeFilter);
   const activeSort = useAppSelector((state) => state.library.activeSort);
-  const { data: games, isPending, isPlaceholderData, isFetching } = useLibraryFilters();
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
+  const { data: games, isPending, isPlaceholderData, isFetching } = useLibraryFilters(debouncedSearchQuery);
   const [isFilterSheetVisible, setIsFilterSheetVisible] = useState(false);
   const [isPullRefreshing, setIsPullRefreshing] = useState(false);
   const listRef = useRef<FlashListRef<SteamGame>>(null);
-  const prevFilterSort = useRef({ activeFilter, activeSort });
-
+  const prevSortFilter = useRef({ activeFilter, activeSort });
   useEffect(() => {
-    if (prevFilterSort.current.activeFilter !== activeFilter ||
-        prevFilterSort.current.activeSort !== activeSort) {
-      prevFilterSort.current = { activeFilter, activeSort };
+    if (
+      prevSortFilter.current.activeFilter !== activeFilter ||
+      prevSortFilter.current.activeSort !== activeSort
+    ) {
+      prevSortFilter.current = { activeFilter, activeSort };
       requestAnimationFrame(() => {
         listRef.current?.scrollToOffset({ offset: 0, animated: false });
       });
@@ -96,12 +103,19 @@ export const LibraryScreen = () => {
     games === undefined ||
     // [must] sync running with empty list — real fix for op-sqlite microtask batching
     (syncStatus === 'syncing' && games.length === 0) ||
-    // [safety] would catch async refetch with empty list — currently dead for op-sqlite
-    (isFetching && games.length === 0);
+    // [safety] background refetch with truly empty library
+    // — never show skeleton when search or filter is responsible for the empty result set
+    (isFetching && games.length === 0 && debouncedSearchQuery === '' && activeFilter === null);
 
   return (
     <SafeAreaView className="flex-1 bg-surface-900" edges={['top']}>
       <OfflineBanner />
+
+      <SearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="Search games…"
+      />
 
       {/* Library toolbar: active filter pill + filter button */}
       <View style={styles.toolbar}>
@@ -134,6 +148,7 @@ export const LibraryScreen = () => {
           <LibraryListSkeleton />
         ) : (
           <FlashList
+            key={debouncedSearchQuery}
             ref={listRef}
             data={games ?? []} // ?? [] is a TS requirement; showSkeleton guards the empty case above
             keyExtractor={(item: SteamGame) => item.appId.toString()}
@@ -150,6 +165,8 @@ export const LibraryScreen = () => {
               <RefreshControl
                 refreshing={isPullRefreshing}
                 onRefresh={() => {
+                  // Intentionally NOT clearing searchQuery on refresh — the active search
+                  // persists so newly synced games matching the query appear immediately.
                   setIsPullRefreshing(true);
                   triggerSync().finally(() => setIsPullRefreshing(false));
                 }}
@@ -158,13 +175,16 @@ export const LibraryScreen = () => {
               />
             }
             ListEmptyComponent={
-              // Only shown when games is a settled empty array (sync done, no games or filter mismatch)
-              !isPending && !isPlaceholderData ? (
+              // Suppress empty state while debounce hasn't caught up to raw input —
+              // avoids flash of stale "no results" between keystrokes (including clear).
+              !isPending && !isPlaceholderData && syncStatus !== 'syncing' && searchQuery === debouncedSearchQuery ? (
                 <View style={{ height: height * 0.6 }} className="items-center justify-center px-8">
                   <Text className="text-text-100 font-rubik text-lg text-center">
-                    {activeFilter !== null
-                      ? 'No games match the current filter.'
-                      : 'Your library is empty. Sync your Steam account to get started.'}
+                    {searchQuery.trim().length > 0
+                      ? `No games match '${searchQuery}'`
+                      : activeFilter !== null
+                        ? 'No games match the current filter.'
+                        : 'Your library is empty. Sync your Steam account to get started.'}
                   </Text>
                 </View>
               ) : null

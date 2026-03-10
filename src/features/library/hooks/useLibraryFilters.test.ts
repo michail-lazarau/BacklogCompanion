@@ -6,7 +6,7 @@ import React from 'react';
 import { authReducer } from '@features/auth/store/authSlice';
 import { libraryReducer } from '@features/library/store/librarySlice';
 import type { FilterOption, SortOption } from '../store/librarySlice';
-import { filterGames, sortGames, useLibraryFilters } from './useLibraryFilters';
+import { filterGames, sortGames, searchGames, useLibraryFilters } from './useLibraryFilters';
 import type { SteamGame } from '@db/schema';
 
 // --- Module mocks (same as useGameLibrary.test.ts) ---
@@ -177,6 +177,44 @@ describe('sortGames', () => {
   });
 });
 
+// --- searchGames tests ---
+
+describe('searchGames', () => {
+  it('returns all games when query is empty', () => {
+    const games = [makeGame({ name: 'Castlevania' }), makeGame({ name: 'Counter-Strike' })];
+    expect(searchGames(games, '')).toHaveLength(2);
+  });
+
+  it('returns all games when query is whitespace only', () => {
+    const games = [makeGame({ name: 'Castlevania' })];
+    expect(searchGames(games, '   ')).toHaveLength(1);
+  });
+
+  it('matches partial title case-insensitively (lowercase query)', () => {
+    const games = [
+      makeGame({ appId: 1, name: 'Castlevania' }),
+      makeGame({ appId: 2, name: 'Counter-Strike' }),
+    ];
+    expect(searchGames(games, 'cast')).toHaveLength(1);
+    expect(searchGames(games, 'cast')[0].name).toBe('Castlevania');
+  });
+
+  it('is case-insensitive (uppercase query)', () => {
+    const games = [makeGame({ name: 'Castlevania' })];
+    expect(searchGames(games, 'CAST')).toHaveLength(1);
+    expect(searchGames(games, 'CaStLeVaNiA')).toHaveLength(1);
+  });
+
+  it('returns empty array when no games match', () => {
+    const games = [makeGame({ name: 'Castlevania' })];
+    expect(searchGames(games, 'zzznomatch')).toHaveLength(0);
+  });
+
+  it('handles empty game list', () => {
+    expect(searchGames([], 'cast')).toHaveLength(0);
+  });
+});
+
 // --- useLibraryFilters hook tests ---
 
 describe('useLibraryFilters', () => {
@@ -234,5 +272,63 @@ describe('useLibraryFilters', () => {
     });
     // Before query resolves, data is undefined
     expect(result.current.data).toBeUndefined();
+  });
+
+  it('returns only matching games when searchQuery is provided', async () => {
+    const games = [
+      { appId: 1, name: 'Castlevania', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+      { appId: 2, name: 'Counter-Strike', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+    ];
+    const { db } = jest.requireMock('../../../db') as { db: { select: jest.Mock } };
+    db.select.mockReturnValue({
+      from: jest.fn().mockReturnValue({ orderBy: jest.fn().mockResolvedValue(games) }),
+    });
+
+    const { result } = renderHook(() => useLibraryFilters('cast'), {
+      wrapper: createWrapper(null, 'alphabetical'),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(1);
+    expect(result.current.data![0].name).toBe('Castlevania');
+  });
+
+  it('returns all games when searchQuery is empty string', async () => {
+    const games = [
+      { appId: 1, name: 'Castlevania', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+      { appId: 2, name: 'Counter-Strike', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+    ];
+    const { db } = jest.requireMock('../../../db') as { db: { select: jest.Mock } };
+    db.select.mockReturnValue({
+      from: jest.fn().mockReturnValue({ orderBy: jest.fn().mockResolvedValue(games) }),
+    });
+
+    const { result } = renderHook(() => useLibraryFilters(''), {
+      wrapper: createWrapper(null, 'alphabetical'),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(2);
+  });
+
+  it('applies both search and active filter (search + unplayed)', async () => {
+    const games = [
+      { appId: 1, name: 'Castlevania', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+      { appId: 2, name: 'Castlevania II', playtimeForever: 100, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+      { appId: 3, name: 'Counter-Strike', playtimeForever: 0, playtime2weeks: null, rtimeLastPlayed: null, imgIconUrl: null, headerImage: null, hltbMain: null, hltbExtra: null, hltbComplete: null, hltbCachedAt: null, lastSyncedAt: new Date() },
+    ];
+    const { db } = jest.requireMock('../../../db') as { db: { select: jest.Mock } };
+    db.select.mockReturnValue({
+      from: jest.fn().mockReturnValue({ orderBy: jest.fn().mockResolvedValue(games) }),
+    });
+
+    // search 'cast' + filter 'unplayed' — should return only appId=1 (unplayed + matches 'cast')
+    const { result } = renderHook(() => useLibraryFilters('cast'), {
+      wrapper: createWrapper('unplayed', 'alphabetical'),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(result.current.data).toHaveLength(1);
+    expect(result.current.data![0].appId).toBe(1);
   });
 });
