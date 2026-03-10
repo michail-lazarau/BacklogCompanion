@@ -20,7 +20,13 @@ import type { GameDetailScreenProps } from '@navigation/types';
 // at screen width in portrait with no cropping.
 const STEAM_HEADER_RATIO = 215 / 460;
 const LANDSCAPE_HEADER_HEIGHT = 280;
-const PARALLAX_RATIO = 0.4;
+// Slower parallax — hero lingers longer before exiting the viewport
+const PARALLAX_RATIO = 0.3;
+// Capsule image is 231×87 — render at half size for a compact bar
+const CAPSULE_HEIGHT = 43;
+const CAPSULE_WIDTH = 115;
+const steamCapsuleUrl = (appId: number) =>
+  `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/capsule_231x87.jpg`;
 
 export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) => {
   const { appId } = route.params;
@@ -33,8 +39,9 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
   const isLandscape = width > height;
   const headerHeight = isLandscape ? LANDSCAPE_HEADER_HEIGHT : width * STEAM_HEADER_RATIO;
   const parallaxBuffer = Math.ceil(headerHeight * PARALLAX_RATIO);
-  const compactBarFadeStart = headerHeight - 60;
-  const compactBarFadeEnd = headerHeight + 10;
+  // Fade in after the hero image has fully scrolled out of view
+  const compactBarFadeStart = headerHeight - 20;
+  const compactBarFadeEnd = headerHeight + 40;
 
   const scrollY = useSharedValue(0);
 
@@ -53,6 +60,16 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
       [0, 1],
       Extrapolation.CLAMP,
     ),
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [compactBarFadeStart, compactBarFadeEnd],
+          [-8, 0],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
 
   if (isPending) {
@@ -72,9 +89,14 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
 
   return (
     <View style={styles.root}>
-      {/* Compact title bar — fades in as hero scrolls out of view */}
+      {/* Compact bar — fades in after hero exits; capsule image + title */}
       <Animated.View style={[styles.compactBar, compactBarStyle]} pointerEvents="none">
         <SafeAreaView edges={['top']} style={styles.compactBarInner}>
+          <FastImage
+            source={{ uri: steamCapsuleUrl(appId), priority: FastImage.priority.normal }}
+            style={styles.capsuleImage}
+            resizeMode={FastImage.resizeMode.cover}
+          />
           <Text testID="compact-title" style={styles.compactTitle} numberOfLines={1}>
             {game.name}
           </Text>
@@ -165,11 +187,19 @@ const styles = StyleSheet.create({
     backgroundColor: tokens.colors.surface900,
   },
   compactBarInner: {
-    paddingHorizontal: tokens.spacing.xl,
-    paddingBottom: tokens.spacing.sm,
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: tokens.spacing.md,
+    paddingBottom: tokens.spacing.sm,
+    gap: tokens.spacing.sm,
+  },
+  capsuleImage: {
+    width: CAPSULE_WIDTH,
+    height: CAPSULE_HEIGHT,
+    borderRadius: tokens.borderRadius.xs,
   },
   compactTitle: {
+    flex: 1,
     fontSize: tokens.fontSize.body,
     fontFamily: tokens.fontFamily.bold,
     color: tokens.colors.text100,
