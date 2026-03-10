@@ -34,6 +34,7 @@ export const GameCard = ({ game, onPress }: GameCardProps) => (
           <Text
             className="text-text-100 font-rubik"
             style={{ flex: 1, marginRight: tokens.spacing.sm, fontSize: tokens.fontSize.body }}
+            numberOfLines={3}
           >
             {game.name}
           </Text>

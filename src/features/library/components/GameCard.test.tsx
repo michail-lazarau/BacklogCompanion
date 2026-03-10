@@ -59,12 +59,12 @@ describe('GameCard', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('truncates long titles to 1 line', () => {
+  it('truncates long titles to 3 lines', () => {
     const longTitle = 'A'.repeat(200);
     const { getByText } = render(
       <GameCard game={makeGame({ name: longTitle })} onPress={jest.fn()} />,
     );
     const titleElement = getByText(longTitle);
-    expect(titleElement.props.numberOfLines).toBe(1);
+    expect(titleElement.props.numberOfLines).toBe(3);
   });
 });

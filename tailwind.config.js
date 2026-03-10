@@ -29,5 +29,8 @@ module.exports = {
       },
     },
   },
+  // Safelist classes that are constructed dynamically or used in style= → className= migrations
+  // and may be missed by NativeWind's static content scan.
+  safelist: ['text-primary', 'bg-primary', 'text-surface-900', 'bg-surface-900'],
   plugins: [],
 };
