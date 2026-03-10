@@ -21,7 +21,7 @@ import type { GameDetailScreenProps } from '@navigation/types';
 const STEAM_HEADER_RATIO = 215 / 460;
 const LANDSCAPE_HEADER_HEIGHT = 280;
 // Slower parallax — hero lingers longer before exiting the viewport
-const PARALLAX_RATIO = 0.3;
+const PARALLAX_RATIO = 0.4;
 // Capsule image is 231×87 — render at half size for a compact bar
 const CAPSULE_HEIGHT = 43;
 const CAPSULE_WIDTH = 115;
@@ -140,7 +140,7 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
         scrollEventThrottle={16}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Parallax hero — header.jpg scrolls at 30% speed over the backdrop */}
+        {/* Parallax hero — container scrolls at 0.6x speed, image fills it normally */}
         <Animated.View style={[styles.headerContainer, { height: headerHeight }, animatedImageStyle]}>
           <FastImage
             source={{ uri: game.headerImage ?? undefined, priority: FastImage.priority.high }}
@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
   },
   heroImage: {
     width: '100%',
+    flex: 1,
   },
   infoContainer: {
     paddingHorizontal: tokens.spacing.md,
