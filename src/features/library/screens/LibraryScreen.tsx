@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, RefreshControl, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList, type FlashListRef } from '@shopify/flash-list';
@@ -20,6 +20,53 @@ const FILTER_LABELS: Record<FilterOption, string> = {
   in_progress: 'In Progress',
   completed: 'Completed',
 };
+
+const styles = StyleSheet.create({
+  toolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: tokens.colors.surface800,
+    minHeight: 44,
+  },
+  filterPillWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  filterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: tokens.colors.primary,
+    borderRadius: 9999,
+    paddingHorizontal: tokens.spacing.sm2,
+    paddingVertical: tokens.spacing.xs,
+  },
+  pillText: {
+    color: tokens.colors.surface900,
+    fontSize: tokens.fontSize.caption,
+    fontFamily: tokens.fontFamily.medium,
+  },
+  pillX: {
+    color: tokens.colors.surface900,
+    fontSize: tokens.fontSize.caption,
+    fontFamily: tokens.fontFamily.medium,
+    marginLeft: tokens.spacing.xs,
+  },
+  filterButton: {
+    paddingHorizontal: tokens.spacing.sm2,
+    paddingVertical: tokens.spacing.xs,
+  },
+  filterButtonText: {
+    color: tokens.colors.primary,
+    fontSize: tokens.fontSize.caption,
+    fontFamily: tokens.fontFamily.medium,
+  },
+  fadeContainer: {
+    flex: 1,
+  },
+});
 
 export const LibraryScreen = () => {
   const { height } = useWindowDimensions();
@@ -44,13 +91,6 @@ export const LibraryScreen = () => {
     }
   }, [activeFilter, activeSort]);
 
-  // Stop pull-to-refresh spinner when sync finishes
-  useEffect(() => {
-    if (isPullRefreshing && syncStatus !== 'syncing') {
-      setIsPullRefreshing(false);
-    }
-  }, [isPullRefreshing, syncStatus]);
-
   const showSkeleton =
     // [must] query has no data — pending with no placeholder from MMKV
     games === undefined ||
@@ -64,51 +104,17 @@ export const LibraryScreen = () => {
       <OfflineBanner />
 
       {/* Library toolbar: active filter pill + filter button */}
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: tokens.spacing.md,
-          paddingVertical: tokens.spacing.sm,
-          borderBottomWidth: 1,
-          borderBottomColor: tokens.colors.surface800,
-          minHeight: 44,
-        }}
-      >
+      <View style={styles.toolbar}>
         {/* Active filter pill (visible when a filter is selected) */}
-        <View style={{ flex: 1, flexDirection: 'row' }}>
+        <View style={styles.filterPillWrapper}>
           {activeFilter !== null && (
             <TouchableOpacity
               testID="active-filter-pill"
               onPress={() => dispatch(setActiveFilter(null))}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: tokens.colors.primary,
-                borderRadius: 9999,
-                paddingHorizontal: tokens.spacing.sm2,
-                paddingVertical: tokens.spacing.xs,
-              }}
+              style={styles.filterPill}
             >
-              <Text
-                style={{
-                  color: tokens.colors.surface900,
-                  fontSize: tokens.fontSize.caption,
-                  fontFamily: tokens.fontFamily.medium,
-                }}
-              >
-                {FILTER_LABELS[activeFilter]}
-              </Text>
-              <Text
-                style={{
-                  color: tokens.colors.surface900,
-                  fontSize: tokens.fontSize.caption,
-                  fontFamily: tokens.fontFamily.medium,
-                  marginLeft: tokens.spacing.xs,
-                }}
-              >
-                ×
-              </Text>
+              <Text style={styles.pillText}>{FILTER_LABELS[activeFilter]}</Text>
+              <Text style={styles.pillX}>×</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -117,63 +123,58 @@ export const LibraryScreen = () => {
         <TouchableOpacity
           testID="open-filter-sheet-button"
           onPress={() => setIsFilterSheetVisible(true)}
-          style={{
-            paddingHorizontal: tokens.spacing.sm2,
-            paddingVertical: tokens.spacing.xs,
-          }}
+          style={styles.filterButton}
         >
-          <Text
-            style={{
-              color: tokens.colors.primary,
-              fontSize: tokens.fontSize.caption,
-              fontFamily: tokens.fontFamily.medium,
-            }}
-          >
-            Filter / Sort
-          </Text>
+          <Text style={styles.filterButtonText}>Filter / Sort</Text>
         </TouchableOpacity>
       </View>
 
-      <Animated.View entering={FadeIn.duration(300)} style={{ flex: 1 }}>
-      {showSkeleton ? (
-        <LibraryListSkeleton />
-      ) : (
-        <FlashList
-          ref={listRef}
-          data={games ?? []}
-          keyExtractor={(item: SteamGame) => item.appId.toString()}
-          renderItem={({ item }: { item: SteamGame }) => (
-            <GameCard
-              game={item}
-              onPress={() => {
-                // TODO Story 4.1: navigate to GameDetailScreen
-                // navigation.push('GameDetail', { appId: item.appId })
-              }}
-            />
-          )}
-          onRefresh={() => { setIsPullRefreshing(true); triggerSync(); }}
-          refreshing={isPullRefreshing}
-          ListEmptyComponent={
-            // Only show empty state once data has settled — avoids flash of empty
-            // during the brief initial render before placeholderData is applied.
-            !isPending && !isPlaceholderData ? (
-              <View style={{ height: height * 0.6 }} className="items-center justify-center px-8">
-                <Text className="text-text-100 font-rubik text-lg text-center">
-                  {activeFilter !== null
-                    ? 'No games match the current filter.'
-                    : 'Your library is empty. Sync your Steam account to get started.'}
-                </Text>
-              </View>
-            ) : null
-          }
-        />
-      )}
+      <Animated.View key={showSkeleton ? 'skeleton' : 'list'} entering={FadeIn.duration(300)} style={styles.fadeContainer}>
+        {showSkeleton ? (
+          <LibraryListSkeleton />
+        ) : (
+          <FlashList
+            ref={listRef}
+            data={games ?? []} // ?? [] is a TS requirement; showSkeleton guards the empty case above
+            keyExtractor={(item: SteamGame) => item.appId.toString()}
+            renderItem={({ item }: { item: SteamGame }) => (
+              <GameCard
+                game={item}
+                onPress={() => {
+                  // TODO Story 4.1: navigate to GameDetailScreen
+                  // navigation.push('GameDetail', { appId: item.appId })
+                }}
+              />
+            )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isPullRefreshing}
+                onRefresh={() => {
+                  setIsPullRefreshing(true);
+                  triggerSync().finally(() => setIsPullRefreshing(false));
+                }}
+                tintColor={tokens.colors.primary}
+                colors={[tokens.colors.primary]}
+              />
+            }
+            ListEmptyComponent={
+              // Only shown when games is a settled empty array (sync done, no games or filter mismatch)
+              !isPending && !isPlaceholderData ? (
+                <View style={{ height: height * 0.6 }} className="items-center justify-center px-8">
+                  <Text className="text-text-100 font-rubik text-lg text-center">
+                    {activeFilter !== null
+                      ? 'No games match the current filter.'
+                      : 'Your library is empty. Sync your Steam account to get started.'}
+                  </Text>
+                </View>
+              ) : null
+            }
+          />
+        )}
       </Animated.View>
 
-      {/* Bottom sheet — lazy-mounted to avoid layout shift on initial render */}
-      {isFilterSheetVisible && (
-        <FilterSheet isVisible={isFilterSheetVisible} onClose={() => setIsFilterSheetVisible(false)} />
-      )}
+      {/* FilterSheet is always mounted so BottomSheet can animate from index -1 → 0 on open */}
+      <FilterSheet isVisible={isFilterSheetVisible} onClose={() => setIsFilterSheetVisible(false)} />
     </SafeAreaView>
   );
 };

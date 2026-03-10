@@ -223,6 +223,9 @@ export const useSteamSync = () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.games.all(steamId) });
     } catch (e: unknown) {
       if (isSteamError(e) && e.code === 'UNAUTHORIZED') {
+        // handleSteamAuthError triggers logout — clear syncing status first so
+        // the pull-to-refresh spinner stops before the auth screen appears.
+        dispatch(setSyncStatus('idle'));
         await handleSteamAuthError(e);
         return;
       }
