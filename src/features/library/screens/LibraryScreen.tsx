@@ -1,23 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, RefreshControl, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FlashList, type FlashListRef } from '@shopify/flash-list';
-import { useAppSelector, useAppDispatch } from '@shared/hooks/reduxHooks';
-import { setActiveFilter } from '../store/librarySlice';
+import { FlashList } from '@shopify/flash-list';
 import type { FilterOption } from '../store/librarySlice';
-import { useSteamSync } from '../hooks/useSteamSync';
-import { useLibraryFilters } from '../hooks/useLibraryFilters';
 import { GameCard } from '../components/GameCard';
 import { LibraryListSkeleton } from '../components/LibraryListSkeleton';
 import { FilterSheet } from '../components/FilterSheet';
 import { SearchBar } from '../components/SearchBar';
-import { useDebounce } from '@shared/hooks/useDebounce';
 import { OfflineBanner } from '@shared/components/OfflineBanner';
 import { tokens } from '@res/tokens';
 import type { SteamGame } from '@db/schema';
-
-const SEARCH_DEBOUNCE_MS = 50;
+import { useLibraryScreen } from '../hooks/useLibraryScreen';
 
 const FILTER_LABELS: Record<FilterOption, string> = {
   unplayed: 'Unplayed',
@@ -74,71 +67,31 @@ const styles = StyleSheet.create({
 
 export const LibraryScreen = () => {
   const { height } = useWindowDimensions();
-  const { triggerSync } = useSteamSync();
-  const dispatch = useAppDispatch();
-  const syncStatus = useAppSelector((state) => state.library.sync_status);
-  const activeFilter = useAppSelector((state) => state.library.activeFilter);
-  const activeSort = useAppSelector((state) => state.library.activeSort);
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearchQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
-  const { data: games, isPending, isPlaceholderData, isFetching } = useLibraryFilters(debouncedSearchQuery);
-  const [isFilterSheetVisible, setIsFilterSheetVisible] = useState(false);
-  const [isPullRefreshing, setIsPullRefreshing] = useState(false);
-  const listRef = useRef<FlashListRef<SteamGame>>(null);
-  const prevSortFilter = useRef({ activeFilter, activeSort });
-  useEffect(() => {
-    if (
-      prevSortFilter.current.activeFilter !== activeFilter ||
-      prevSortFilter.current.activeSort !== activeSort
-    ) {
-      prevSortFilter.current = { activeFilter, activeSort };
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToOffset({ offset: 0, animated: false });
-      });
-    }
-  }, [activeFilter, activeSort]);
-
-  const showSkeleton =
-    // [must] query has no data — pending with no placeholder from MMKV
-    games === undefined ||
-    // [must] sync running with empty list — real fix for op-sqlite microtask batching
-    (syncStatus === 'syncing' && games.length === 0) ||
-    // [safety] background refetch with truly empty library
-    // — never show skeleton when search or filter is responsible for the empty result set
-    (isFetching && games.length === 0 && debouncedSearchQuery === '' && activeFilter === null);
+  const {
+    searchQuery, setSearchQuery, debouncedSearchQuery,
+    games, isPending, isPlaceholderData, syncStatus,
+    activeFilter, showSkeleton, listRef,
+    isPullRefreshing, onRefresh,
+    isFilterSheetVisible, openFilterSheet, closeFilterSheet, clearFilter,
+  } = useLibraryScreen();
 
   return (
     <SafeAreaView className="flex-1 bg-surface-900" edges={['top']}>
       <OfflineBanner />
 
-      <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        placeholder="Search games…"
-      />
+      <SearchBar value={searchQuery} onChangeText={setSearchQuery} placeholder="Search games…" />
 
       {/* Library toolbar: active filter pill + filter button */}
       <View style={styles.toolbar}>
-        {/* Active filter pill (visible when a filter is selected) */}
         <View style={styles.filterPillWrapper}>
           {activeFilter !== null && (
-            <TouchableOpacity
-              testID="active-filter-pill"
-              onPress={() => dispatch(setActiveFilter(null))}
-              style={styles.filterPill}
-            >
+            <TouchableOpacity testID="active-filter-pill" onPress={clearFilter} style={styles.filterPill}>
               <Text style={styles.pillText}>{FILTER_LABELS[activeFilter]}</Text>
               <Text style={styles.pillX}>×</Text>
             </TouchableOpacity>
           )}
         </View>
-
-        {/* Filter / Sort button */}
-        <TouchableOpacity
-          testID="open-filter-sheet-button"
-          onPress={() => setIsFilterSheetVisible(true)}
-          style={styles.filterButton}
-        >
+        <TouchableOpacity testID="open-filter-sheet-button" onPress={openFilterSheet} style={styles.filterButton}>
           <Text style={styles.filterButtonText}>Filter / Sort</Text>
         </TouchableOpacity>
       </View>
@@ -164,12 +117,7 @@ export const LibraryScreen = () => {
             refreshControl={
               <RefreshControl
                 refreshing={isPullRefreshing}
-                onRefresh={() => {
-                  // Intentionally NOT clearing searchQuery on refresh — the active search
-                  // persists so newly synced games matching the query appear immediately.
-                  setIsPullRefreshing(true);
-                  triggerSync().finally(() => setIsPullRefreshing(false));
-                }}
+                onRefresh={onRefresh}
                 tintColor={tokens.colors.primary}
                 colors={[tokens.colors.primary]}
               />
@@ -194,7 +142,7 @@ export const LibraryScreen = () => {
       </Animated.View>
 
       {/* FilterSheet is always mounted so BottomSheet can animate from index -1 → 0 on open */}
-      <FilterSheet isVisible={isFilterSheetVisible} onClose={() => setIsFilterSheetVisible(false)} />
+      <FilterSheet isVisible={isFilterSheetVisible} onClose={closeFilterSheet} />
     </SafeAreaView>
   );
 };

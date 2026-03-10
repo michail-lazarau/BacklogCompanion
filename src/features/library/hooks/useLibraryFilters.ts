@@ -39,8 +39,8 @@ export const sortGames = (games: SteamGame[], sort: SortOption): SteamGame[] => 
 
 export const searchGames = (games: SteamGame[], query: string): SteamGame[] => {
   if (!query.trim()) return games;
-  const lower = query.toLowerCase();
-  return games.filter((g) => g.name.toLowerCase().includes(lower));
+  const lower = query.normalize('NFC').toLowerCase();
+  return games.filter((g) => g.name.normalize('NFC').toLowerCase().includes(lower));
 };
 
 export const useLibraryFilters = (searchQuery: string = '') => {

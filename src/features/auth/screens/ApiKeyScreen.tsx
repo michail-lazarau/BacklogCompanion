@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   View,
   Text,
@@ -7,37 +6,16 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useApiKeySetup } from '@features/auth/hooks/useApiKeySetup';
+import { useApiKeyScreen } from '@features/auth/hooks/useApiKeyScreen';
 import { tokens } from '@res/tokens';
-
-const STEAM_API_KEY_URL = 'https://steamcommunity.com/dev/apikey';
 
 interface ApiKeyScreenOwnProps {
   onKeySaved?: () => void;
 }
 
 export const ApiKeyScreen = ({ onKeySaved }: ApiKeyScreenOwnProps) => {
-  const [apiKey, setApiKey] = useState('');
-  const { validateAndSaveApiKey, isLoading, error } = useApiKeySetup();
-
-  const handleSubmit = () => {
-    validateAndSaveApiKey(apiKey)
-      .then((success) => { if (success) { onKeySaved?.(); } })
-      .catch(() => { /* errors handled inside hook */ });
-  };
-
-  const handleOpenLink = () => {
-    // openAuth (ASWebAuthenticationSession) shares the Steam session from the login step.
-    // The user copies the key and taps Cancel — the 'cancel' result is expected and ignored.
-    InAppBrowser.openAuth(STEAM_API_KEY_URL, 'backlogcompanion://', {
-      ephemeralWebSession: false,
-      showTitle: false,
-      enableUrlBarHiding: true,
-      enableDefaultShare: false,
-    }).catch(() => { /* ignore */ });
-  };
+  const { apiKey, setApiKey, isLoading, error, handleSubmit, handleOpenLink } = useApiKeyScreen(onKeySaved);
 
   return (
     <SafeAreaView className="flex-1 bg-surface-900">

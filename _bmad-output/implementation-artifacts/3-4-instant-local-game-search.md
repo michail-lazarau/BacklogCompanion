@@ -658,6 +658,10 @@ claude-sonnet-4-6 (Implementation — 2026-03-10)
 - src/features/library/hooks/useLibraryFilters.ts (modified)
 - src/features/library/hooks/useLibraryFilters.test.ts (modified)
 - src/features/library/screens/LibraryScreen.tsx (modified)
+- src/features/library/hooks/useLibraryScreen.ts (created — post-story refactoring: screen logic extracted from LibraryScreen)
+- src/features/library/hooks/useLibraryScreen.test.ts (created — 8 tests for showSkeleton, onRefresh, clearFilter)
+- src/features/auth/hooks/useApiKeyScreen.ts (created — post-story refactoring: screen logic extracted from ApiKeyScreen)
+- src/features/auth/screens/ApiKeyScreen.tsx (modified — post-story refactoring: uses useApiKeyScreen hook)
 - _bmad-output/implementation-artifacts/3-4-instant-local-game-search.md (modified)
 - _bmad-output/implementation-artifacts/sprint-status.yaml (modified)
 
@@ -679,3 +683,4 @@ claude-sonnet-4-6 (Implementation — 2026-03-10)
 |---|---|
 | 2026-03-10 | Implemented Story 3.4: created SearchBar component, useDebounce hook, searchGames pure function; extended useLibraryFilters with search pipeline; integrated into LibraryScreen with raw/debounced split pattern; 19 new tests added (210→229 total) |
 | 2026-03-10 | Code review fixes: showSkeleton skeleton-flash bug, 2 new tests (default placeholder + delay change), search-persist-on-refresh comment; final count 231 tests |
+| 2026-03-10 | Post-story refactoring: extracted useLibraryScreen hook (state/logic separation); extracted useApiKeyScreen hook; added useCallback for stable callbacks; moved useWindowDimensions to component; added Unicode normalization (NFC) to searchGames; final test count 240 |
