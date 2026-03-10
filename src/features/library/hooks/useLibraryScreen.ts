@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { type FlashListRef } from '@shopify/flash-list';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@navigation/types';
 import { useAppSelector, useAppDispatch } from '@shared/hooks/reduxHooks';
 import { setActiveFilter } from '../store/librarySlice';
 import { useSteamSync } from './useSteamSync';
@@ -10,6 +13,7 @@ import type { SteamGame } from '@db/schema';
 const SEARCH_DEBOUNCE_MS = 50;
 
 export const useLibraryScreen = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { triggerSync } = useSteamSync();
   const dispatch = useAppDispatch();
   const syncStatus = useAppSelector((state) => state.library.sync_status);
@@ -56,6 +60,7 @@ export const useLibraryScreen = () => {
   }, [triggerSync]);
 
   return {
+    navigation,
     searchQuery,
     setSearchQuery,
     debouncedSearchQuery,

@@ -1,6 +1,6 @@
 # Story 4.1: Game Detail Screen Navigation & Header
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -34,22 +34,22 @@ so that I can access all enriched information for a specific game in a focused, 
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Extend navigation types and RootNavigator for GameDetail route (AC: 1)
-  - [ ] Subtask 1.1: Add `GameDetail` to `RootStackParamList` in `src/navigation/types.ts`
+- [x] Task 1: Extend navigation types and RootNavigator for GameDetail route (AC: 1)
+  - [x] Subtask 1.1: Add `GameDetail` to `RootStackParamList` in `src/navigation/types.ts`
     - Param: `{ appId: number }`
     - Add `GameDetailScreenProps` type alias: `NativeStackScreenProps<RootStackParamList, 'GameDetail'>`
-  - [ ] Subtask 1.2: Add `GameDetail` screen to `RootNavigator.tsx` inside `<Stack.Navigator>`
+  - [x] Subtask 1.2: Add `GameDetail` screen to `RootNavigator.tsx` inside `<Stack.Navigator>`
     - Import `GameDetailScreen` from `@features/gameDetail/screens/GameDetailScreen`
     - Add after `MainTabs`: `<Stack.Screen name="GameDetail" component={GameDetailScreen} options={{ headerShown: false }} />`
     - `GameDetail` must be accessible regardless of auth state guard — only authenticated users can reach it (MainTabs gate already ensures this)
     - Note: `GameDetail` is added to the root stack (not the tab navigator) so it slides over tabs with native stack animation
-  - [ ] Subtask 1.3: Wire `onPress` in `LibraryScreen` to navigate to `GameDetail`
+  - [x] Subtask 1.3: Wire `onPress` in `LibraryScreen` to navigate to `GameDetail`
     - `LibraryScreen` uses `useLibraryScreen` hook — navigation must be passed in or accessed via `useNavigation`
     - Add `const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();` to `useLibraryScreen.ts`
     - Replace the TODO comment in `LibraryScreen` `GameCard` `onPress` with: `navigation.push('GameDetail', { appId: item.appId })`
 
-- [ ] Task 2: Create `useGameDetail` hook (AC: 3)
-  - [ ] Subtask 2.1: Create `src/features/gameDetail/hooks/useGameDetail.ts`
+- [x] Task 2: Create `useGameDetail` hook (AC: 3)
+  - [x] Subtask 2.1: Create `src/features/gameDetail/hooks/useGameDetail.ts`
     - Named export: `export const useGameDetail = (appId: number) => { ... }`
     - Uses `useQuery` from `@tanstack/react-query`
     - Query key: `queryKeys.games.detail(appId)` — import from `@shared/queryKeys`
@@ -57,15 +57,15 @@ so that I can access all enriched information for a specific game in a focused, 
     - Uses `db` import from `@db/index`
     - Returns: `{ game: SteamGame | null | undefined, isPending, isError }`
     - staleTime: `Infinity` — game detail data never goes stale mid-session (sync engine updates SQLite)
-  - [ ] Subtask 2.2: Create `src/features/gameDetail/hooks/useGameDetail.test.ts`
+  - [x] Subtask 2.2: Create `src/features/gameDetail/hooks/useGameDetail.test.ts`
     - Test: returns `null` when appId not found in mock db
     - Test: returns game object when found
     - Test: `isPending` is true while query is loading
     - Test: uses correct query key `queryKeys.games.detail(appId)`
     - Pattern: mock `@db/index` with a jest mock (same pattern as `useGameLibrary.test.ts`)
 
-- [ ] Task 3: Create `GameDetailScreen` with parallax header (AC: 1, 2, 3)
-  - [ ] Subtask 3.1: Create `src/features/gameDetail/screens/GameDetailScreen.tsx`
+- [x] Task 3: Create `GameDetailScreen` with parallax header (AC: 1, 2, 3)
+  - [x] Subtask 3.1: Create `src/features/gameDetail/screens/GameDetailScreen.tsx`
     - Named export: `export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) => { ... }`
     - Extract `appId` from `route.params.appId`
     - Use `useGameDetail(appId)` for data
@@ -82,14 +82,14 @@ so that I can access all enriched information for a specific game in a focused, 
     - **Scroll container:** `Animated.ScrollView` with `onScroll={scrollHandler}` and `scrollEventThrottle={16}`
     - **Skeleton state:** When `isPending`, show `GameDetailSkeleton` (see Task 4)
     - **Error/empty state:** If `!game && !isPending`, show a brief "Game not found" message with back button
-  - [ ] Subtask 3.2: Create `src/features/gameDetail/screens/GameDetailScreen.test.tsx`
+  - [x] Subtask 3.2: Create `src/features/gameDetail/screens/GameDetailScreen.test.tsx`
     - Test: renders game title when data is available
     - Test: renders skeleton when isPending
     - Test: back button navigates back (mock `navigation.goBack`)
     - Pattern: mock `useGameDetail` at module level; provide mock navigation via `@react-navigation/native` mock
 
-- [ ] Task 4: Create `GameDetailSkeleton` component (AC: 3)
-  - [ ] Subtask 4.1: Create `src/features/gameDetail/components/GameDetailSkeleton.tsx`
+- [x] Task 4: Create `GameDetailSkeleton` component (AC: 3)
+  - [x] Subtask 4.1: Create `src/features/gameDetail/components/GameDetailSkeleton.tsx`
     - Named export: `export const GameDetailSkeleton = () => { ... }`
     - Two blocks: a large rectangle for the hero image area, two smaller rectangles for title + playtime
     - Uses `Animated` from `react-native-reanimated` for shimmer pulse animation
@@ -98,10 +98,10 @@ so that I can access all enriched information for a specific game in a focused, 
     - Style: `style=` only (no `className=` on `Animated.View`)
     - See Dev Notes for shimmer pattern reference from existing `LibraryListSkeleton`
 
-- [ ] Task 5: Validate (AC: TypeScript + ESLint + Jest)
-  - [ ] Subtask 5.1: `npx tsc --noEmit` — zero TypeScript errors
-  - [ ] Subtask 5.2: `npx eslint src/ --ext .ts,.tsx` — zero new lint errors
-  - [ ] Subtask 5.3: `npx jest` — 231 tests pass (baseline) + new tests; zero regressions
+- [x] Task 5: Validate (AC: TypeScript + ESLint + Jest)
+  - [x] Subtask 5.1: `npx tsc --noEmit` — zero new TypeScript errors (2 pre-existing errors in useLibraryScreen.test.ts remain unchanged)
+  - [x] Subtask 5.2: `npx eslint src/ --ext .ts,.tsx` — zero new lint errors (2 pre-existing `as any` warnings in test files)
+  - [x] Subtask 5.3: `npx jest` — 249 tests pass (baseline 231 + 18 new); zero regressions
 
 ## Dev Notes
 
@@ -611,9 +611,44 @@ Patterns established:
 ### Agent Model Used
 
 claude-sonnet-4-6 (Story creation — 2026-03-10)
+claude-sonnet-4-6 (Implementation — 2026-03-10)
 
 ### Debug Log References
 
+- `mockLimit` in jest.mock factory cannot reference outer `let` variable due to hoisting → used `jest.requireMock` pattern instead
+- `jest.mock()` factory cannot reference imported `React`/`View` variables → used inline `require()` inside factory
+- `useNavigation` called without NavigationContainer in `useLibraryScreen.test.ts` after adding hook → added `@react-navigation/native` mock to that test file
+
 ### Completion Notes List
 
+- Implemented all 4 tasks (navigation extension, useGameDetail hook, GameDetailScreen with parallax header, GameDetailSkeleton with reduced-motion support)
+- GameDetail placed on root stack so it slides over tabs with native animation
+- `useNavigation` added to `useLibraryScreen` hook; returned as `navigation` so LibraryScreen can call `navigation.push('GameDetail', { appId })`
+- Parallax effect: `translateY = scrollY * 0.4` via `useAnimatedStyle` on `Animated.View` (style= only, never className=)
+- Compact title bar: fades in via `interpolate` / `Extrapolation.CLAMP` once hero scrolls past threshold (AC2 collapse behavior)
+- Skeleton uses `useReducedMotion()` — static grey blocks when reduced motion is preferred
+- All styles moved to `StyleSheet.create()` — zero inline style warnings
+- Code review fixes applied: compact bar, Jest leak resolved, no-op gradient removed, not-found back button testID + test, explicit `options={{ headerShown: false }}` on GameDetail screen
+- Test count: 231 baseline → 251 (20 new tests across 3 new test files + 2 updated existing tests)
+
 ### File List
+
+**Created:**
+- src/features/gameDetail/hooks/useGameDetail.ts
+- src/features/gameDetail/hooks/useGameDetail.test.ts
+- src/features/gameDetail/components/GameDetailSkeleton.tsx
+- src/features/gameDetail/components/GameDetailSkeleton.test.tsx
+- src/features/gameDetail/screens/GameDetailScreen.tsx
+- src/features/gameDetail/screens/GameDetailScreen.test.tsx
+
+**Modified:**
+- src/navigation/types.ts
+- src/navigation/RootNavigator.tsx
+- src/features/library/hooks/useLibraryScreen.ts
+- src/features/library/hooks/useLibraryScreen.test.ts
+- src/features/library/screens/LibraryScreen.tsx
+
+### Change Log
+
+- feat(gameDetail): implement game detail screen navigation and header (story 4-1) — 2026-03-10
+- fix(gameDetail): code review fixes — compact title bar, test leak, gradient no-op, missing tests, headerShown option (story 4-1) — 2026-03-10

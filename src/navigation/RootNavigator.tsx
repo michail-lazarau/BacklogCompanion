@@ -8,6 +8,7 @@ import { ApiKeyScreen } from '@features/auth/screens/ApiKeyScreen';
 import { useSteamAuth } from '@features/auth/hooks/useSteamAuth';
 import { useApiKeyGate } from '@features/auth/hooks/useApiKeyGate';
 import { MainTabNavigator } from './MainTabNavigator';
+import { GameDetailScreen } from '@features/gameDetail/screens/GameDetailScreen';
 import type { RootStackParamList } from './types';
 
 const LoadingScreen = () => (
@@ -76,6 +77,7 @@ export const RootNavigator = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {renderScreen()}
+        <Stack.Screen name="GameDetail" component={GameDetailScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

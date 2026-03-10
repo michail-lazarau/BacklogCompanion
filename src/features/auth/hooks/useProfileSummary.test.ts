@@ -31,12 +31,16 @@ const MOCK_PLAYER = {
   avatarfull: 'https://example.com/avatar.jpg',
 };
 
+let currentQueryClient: QueryClient;
+
+afterEach(() => currentQueryClient?.clear());
+
 const createWrapper = (steamId: string | null = STEAM_ID) => {
   const store = configureStore({
     reducer: { auth: authReducer },
     preloadedState: { auth: { isAuthenticated: true, steamId } },
   });
-  const queryClient = new QueryClient({
+  currentQueryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   const wrapper = ({ children }: { children: React.ReactNode }) =>
@@ -46,11 +50,11 @@ const createWrapper = (steamId: string | null = STEAM_ID) => {
       { store } as any,
       React.createElement(
         QueryClientProvider,
-        { client: queryClient },
+        { client: currentQueryClient },
         children,
       ),
     );
-  return { store, queryClient, wrapper };
+  return { store, wrapper };
 };
 
 describe('useProfileSummary', () => {

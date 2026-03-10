@@ -88,11 +88,15 @@ const createTestStore = (authOverrides: Record<string, unknown> = {}) =>
 
 type TestStore = ReturnType<typeof createTestStore>;
 
+let currentQueryClient: QueryClient;
+
+afterEach(() => currentQueryClient?.clear());
+
 const makeWrapper = (store: TestStore) => {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  currentQueryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return function Wrapper({ children }: { children: React.ReactNode }) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return React.createElement(Provider, { store, children: React.createElement(QueryClientProvider, { client: queryClient }, children) } as any);
+    return React.createElement(Provider, { store, children: React.createElement(QueryClientProvider, { client: currentQueryClient }, children) } as any);
   };
 };
 

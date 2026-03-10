@@ -10,6 +10,9 @@ import { useLibraryScreen } from './useLibraryScreen';
 
 jest.mock('./useLibraryFilters');
 jest.mock('./useSteamSync');
+jest.mock('@react-navigation/native', () => ({
+  useNavigation: () => ({ push: jest.fn(), goBack: jest.fn() }),
+}));
 
 const mockUseLibraryFilters = (jest.requireMock('./useLibraryFilters') as { useLibraryFilters: jest.Mock }).useLibraryFilters;
 const mockUseSteamSync = (jest.requireMock('./useSteamSync') as { useSteamSync: jest.Mock }).useSteamSync;
@@ -49,8 +52,9 @@ function createWrapper(libraryState: LibraryPreloadState = {}) {
       },
     } as Parameters<typeof configureStore>[0]['preloadedState'],
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return ({ children }: { children: React.ReactNode }) => (
-    React.createElement(Provider, { store }, children)
+    React.createElement(Provider, { store } as any, children)
   );
 }
 
@@ -166,8 +170,9 @@ describe('clearFilter', () => {
         },
       } as Parameters<typeof configureStore>[0]['preloadedState'],
     });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const wrapper = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(Provider, { store }, children);
+      React.createElement(Provider, { store } as any, children);
 
     const { result } = renderHook(() => useLibraryScreen(), { wrapper });
     act(() => { result.current.clearFilter(); });

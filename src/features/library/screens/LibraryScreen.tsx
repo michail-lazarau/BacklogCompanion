@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
 export const LibraryScreen = () => {
   const { height } = useWindowDimensions();
   const {
+    navigation,
     searchQuery, setSearchQuery, debouncedSearchQuery,
     games, isPending, isPlaceholderData, syncStatus,
     activeFilter, showSkeleton, listRef,
@@ -108,10 +109,7 @@ export const LibraryScreen = () => {
             renderItem={({ item }: { item: SteamGame }) => (
               <GameCard
                 game={item}
-                onPress={() => {
-                  // TODO Story 4.1: navigate to GameDetailScreen
-                  // navigation.push('GameDetail', { appId: item.appId })
-                }}
+                onPress={() => navigation.push('GameDetail', { appId: item.appId })}
               />
             )}
             refreshControl={

@@ -85,6 +85,10 @@ const makeSnapshotGame = (appId: number) => ({
 
 // --- Wrapper factory ---
 
+let currentQueryClient: QueryClient;
+
+afterEach(() => currentQueryClient?.clear());
+
 const createWrapper = (steamId: string | null = STEAM_ID) => {
   const store = configureStore({
     reducer: { auth: authReducer, library: libraryReducer },
@@ -98,7 +102,7 @@ const createWrapper = (steamId: string | null = STEAM_ID) => {
       },
     },
   });
-  const queryClient = new QueryClient({
+  currentQueryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   return ({ children }: { children: React.ReactNode }) =>
@@ -106,7 +110,7 @@ const createWrapper = (steamId: string | null = STEAM_ID) => {
       Provider,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { store } as any,
-      React.createElement(QueryClientProvider, { client: queryClient }, children),
+      React.createElement(QueryClientProvider, { client: currentQueryClient }, children),
     );
 };
 
@@ -183,7 +187,7 @@ describe('useGameLibrary', () => {
     // Verify the query key by reading it from the QueryClient cache after the query runs.
     // TanStack Query stores queries indexed by their key — if the key were wrong, the
     // cache lookup would fail and the test would time out or return wrong data.
-    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    currentQueryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     const store = (() => {
       const { configureStore: cs } = jest.requireActual('@reduxjs/toolkit') as typeof import('@reduxjs/toolkit');
       return cs({
@@ -199,7 +203,7 @@ describe('useGameLibrary', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         require('react-redux').Provider,
         { store } as any,
-        React.createElement(QueryClientProvider, { client: queryClient }, children),
+        React.createElement(QueryClientProvider, { client: currentQueryClient }, children),
       );
 
     const { result } = renderHook(() => useGameLibrary(), { wrapper });
@@ -208,7 +212,7 @@ describe('useGameLibrary', () => {
 
     // The expected key must exist in the QueryClient cache
     const expectedKey = queryKeys.games.all(STEAM_ID);
-    const cachedQuery = queryClient.getQueryState(expectedKey);
+    const cachedQuery = currentQueryClient.getQueryState(expectedKey);
     expect(cachedQuery).toBeDefined();
     expect(cachedQuery?.status).toBe('success');
   });

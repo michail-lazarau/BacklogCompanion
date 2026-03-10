@@ -7,6 +7,7 @@ export type RootStackParamList = {
   Loading: undefined;
   ApiKey: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
+  GameDetail: { appId: number };
 };
 
 export type MainTabParamList = {
@@ -16,6 +17,7 @@ export type MainTabParamList = {
 };
 
 export type AuthScreenProps = NativeStackScreenProps<RootStackParamList, 'Auth'>;
+export type GameDetailScreenProps = NativeStackScreenProps<RootStackParamList, 'GameDetail'>;
 export type HomeTabScreenProps = BottomTabScreenProps<MainTabParamList, 'HomeTab'>;
 export type LibraryTabScreenProps = BottomTabScreenProps<MainTabParamList, 'LibraryTab'>;
 export type ProfileTabScreenProps = BottomTabScreenProps<MainTabParamList, 'ProfileTab'>;

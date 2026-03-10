@@ -31,7 +31,7 @@ const createWrapper = (steamId: string | null = STEAM_ID) => {
   });
   const wrapper = ({ children }: { children: React.ReactNode }) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    React.createElement(Provider, { store, children } as any);
+    React.createElement(Provider, { store } as any, children);
   return { store, wrapper };
 };
 

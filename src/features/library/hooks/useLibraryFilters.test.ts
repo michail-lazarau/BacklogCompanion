@@ -65,6 +65,10 @@ const makeGame = (overrides: Partial<SteamGame>): SteamGame => ({
 
 const STEAM_ID = '76561198012345678';
 
+let currentQueryClient: QueryClient;
+
+afterEach(() => currentQueryClient?.clear());
+
 const createWrapper = (
   activeFilter: FilterOption | null = null,
   activeSort: SortOption = 'alphabetical',
@@ -76,14 +80,14 @@ const createWrapper = (
       library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter, activeSort },
     },
   });
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  currentQueryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   // eslint-disable-next-line react/display-name
   return ({ children }: { children: React.ReactNode }) =>
     React.createElement(
       Provider,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       { store } as any,
-      React.createElement(QueryClientProvider, { client: queryClient }, children),
+      React.createElement(QueryClientProvider, { client: currentQueryClient }, children),
     );
 };
 
