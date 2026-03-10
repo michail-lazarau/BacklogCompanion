@@ -8,6 +8,7 @@ import { RootNavigator } from './navigation/RootNavigator';
 import { Providers } from './data/QueryProvider';
 import { db } from '@db/index';
 import { allMigrations } from '@db/migrations/index';
+import { toastConfig } from '@shared/components/toastConfig';
 import '../global.css';
 
 Sentry.init({
@@ -37,7 +38,7 @@ export const App = Sentry.wrap(function App() {
           <ActivityIndicator style={rootStyle} />
         </View>
       )}
-      <Toast />
+      <Toast config={toastConfig} />
     </GestureHandlerRootView>
   );
 });

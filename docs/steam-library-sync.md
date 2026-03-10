@@ -143,6 +143,37 @@ The pending timeout handle is stored in `retryTimeoutRef` and cleared on unmount
 
 ---
 
+## Why sync_status Lives in Redux
+
+`useSteamSync` and `LibraryScreen` are architecturally separate — a hook that owns the sync lifecycle and a component that needs to react to it. They have no direct parent-child relationship and cannot share local state.
+
+Redux is the contract between them: `useSteamSync` **writes**, `LibraryScreen` (and any future consumer) **reads**.
+
+Without Redux, the alternatives would be:
+- Pass callbacks into `useSteamSync` — couples the hook to a specific screen
+- Return the async Promise from `triggerSync` and manage it in the component — mixes sync logic into UI
+
+`LibraryScreen` currently reads `sync_status` in two places:
+
+```ts
+// 1. Stop the pull-to-refresh spinner when sync finishes
+useEffect(() => {
+  if (isPullRefreshing && syncStatus !== 'syncing') {
+    setIsPullRefreshing(false);
+  }
+}, [isPullRefreshing, syncStatus]);
+
+// 2. Keep skeleton visible while sync is running with empty list
+const showSkeleton =
+  games === undefined ||
+  (syncStatus === 'syncing' && games.length === 0) ||
+  (isFetching && games.length === 0);
+```
+
+`syncErrorReason` follows the same pattern — it is written by `useSteamSync` (e.g. `'private_profile'`, `'api_error'`) and available to any component that needs to drive error UI without being directly involved in the sync flow.
+
+---
+
 ## API Key Source
 
 The hook reads the API key from Keychain on every sync call — **not** from `Config.STEAM_API_KEY` (env var). The env-var pattern is a prototype used only by the deprecated `getOwnedGames` function.
@@ -163,6 +194,36 @@ if (!keychainResult) return; // no key → skip sync
 ```
 
 `triggerSync` is the same `runSync` callback. Story 3.2 (Library Screen) calls it on pull-to-refresh. It respects the throttle window — within 30 minutes of a full sync it will run an incremental sync instead.
+
+---
+
+## syncStatus as a Rendering Signal in LibraryScreen
+
+`sync_status` is used in `LibraryScreen` not only to drive the pull-to-refresh spinner, but to gate whether the **skeleton or the empty state** is shown:
+
+```ts
+const showSkeleton =
+  games === undefined ||
+  (syncStatus === 'syncing' && games.length === 0) || // ← this leg
+  (isFetching && games.length === 0);
+```
+
+### Why `isFetching` alone is not enough
+
+When sync completes, it calls `queryClient.invalidateQueries()` which triggers a TanStack Query refetch of the SQLite games table. Under normal async conditions, `isFetching` would flip `true` for at least one render frame, allowing the skeleton to show while the fresh rows arrive.
+
+However, `op-sqlite` executes queries **on the JS thread synchronously** — no native bridge round-trip. This means the refetch Promise resolves in the same microtask batch as the fetch start. React 18's async scheduler (which flushes render work as macrotasks) never sees the `isFetching: true` intermediate state. Both the "start fetch" and "got data" TanStack Query notifications are batched into a single render showing only the final result.
+
+Consequence: without additional guards, a user whose library is empty (pre-first-sync) would see **"Your library is empty"** flash briefly before game cards appeared — because the SQLite query returned `[]` (empty DB) before the network sync finished writing games.
+
+### Why `syncStatus === 'syncing'` works
+
+`setSyncStatus('syncing')` is dispatched **at the very start of `runSync()`**, before any network call, before any SQLite write, before `invalidateQueries`. It is a Redux signal on a completely independent timeline from TanStack Query's fetch lifecycle. The status is cleared to `'idle'` only after `invalidateQueries()` resolves, meaning it remains `'syncing'` for the entire window where:
+
+1. The DB is still empty (sync not done)
+2. TanStack Query's `isFetching` is invisible to React (op-sqlite batching)
+
+Showing the skeleton while `syncStatus === 'syncing' && games.length === 0` ensures the empty state is never shown until we can be certain the library is genuinely empty — i.e. sync has completed and confirmed there is nothing to display.
 
 ---
 

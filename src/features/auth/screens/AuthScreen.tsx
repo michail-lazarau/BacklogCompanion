@@ -10,11 +10,9 @@ export const AuthScreen = (_props: AuthScreenProps) => (
     <View className="flex-1 justify-center items-center px-6">
       <View className="items-center mb-12">
         <SteamLogo width={240} height={122} style={{ marginBottom: tokens.spacing.md }} />
-        <Text className="text-primary text-base font-rubik">Your Steam backlog, organized.</Text>
+        <Text className="text-primary text-lg font-rubik">Your Steam backlog, organized.</Text>
       </View>
-      <View className="bg-surface-800 rounded-card p-6 w-full items-center">
-        <SteamLoginButton />
-      </View>
+      <SteamLoginButton />
     </View>
   </SafeAreaView>
 );

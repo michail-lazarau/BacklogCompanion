@@ -57,6 +57,41 @@ Steam OpenID validates that `return_to` and `realm` are reachable HTTPS URLs. A 
 
 `Info.plist` registers `backlogcompanion` as a custom URL scheme under `CFBundleURLTypes`. This is what causes iOS to route `backlogcompanion://` URLs to the app and what `ASWebAuthenticationSession` uses to detect the final redirect.
 
+## Browser Strategy: InAppBrowser vs Linking
+
+The app uses two different mechanisms to open URLs, and the choice matters for session continuity.
+
+### `InAppBrowser.openAuth` — Steam OpenID login
+
+Used in `useSteamAuth.initiateLogin`. Maps to `ASWebAuthenticationSession` on iOS.
+
+**Why not `Linking.openURL`?**
+`Linking.openURL` opens Safari as a standalone app and has no mechanism to capture the redirect back. `ASWebAuthenticationSession` is specifically designed for OAuth flows — it watches for a redirect to a nominated scheme (`backlogcompanion://`) and resolves the promise with the full redirect URL, all without leaving the app.
+
+**Cookie sharing (`ephemeralWebSession: false`)**
+When `ephemeralWebSession` is `false`, `ASWebAuthenticationSession` shares the Safari cookie store. This means the Steam session established here persists into subsequent in-app browser views.
+
+### `InAppBrowser.openAuth` — Steam API key page
+
+Used in `ApiKeyScreen.handleOpenLink`. Maps to `ASWebAuthenticationSession` on iOS.
+
+**Why not `InAppBrowser.open` (SFSafariViewController)?**
+`SFSafariViewController` does **not** share cookies with `ASWebAuthenticationSession` — they have separate stores (iOS 11+). The Steam session from the login step would not carry over, forcing the user to log in again.
+
+**Why not `Linking.openURL`?**
+Opens system Safari as a standalone app. The user would need to navigate back to the app manually after copying the key.
+
+**`openAuth` for a non-OAuth page**
+`steamcommunity.com/dev/apikey` requires a Steam login. Since `openAuth` reuses the same `ASWebAuthenticationSession` store as the login step, the Steam session carries over automatically. The `backlogcompanion://` redirect scheme is passed as required by the API but will never be triggered — the user copies the key and taps **Cancel** to return to the app, which is handled gracefully (the `cancel` result is ignored).
+
+### Summary
+
+| Call site | API | iOS primitive | Cookie store shared | Use case |
+|-----------|-----|--------------|---------------------|----------|
+| `useSteamAuth.initiateLogin` | `openAuth` | `ASWebAuthenticationSession` | Yes (`ephemeralWebSession: false`) | OAuth redirect capture |
+| `ApiKeyScreen.handleOpenLink` | `openAuth` | `ASWebAuthenticationSession` | Yes (same store as login) | In-flow authenticated page — user cancels to return |
+| Fallback (InAppBrowser unavailable) | `Linking.openURL` | System Safari | Separate process | Last resort only |
+
 ## Error Cases
 
 | Condition | Behaviour |

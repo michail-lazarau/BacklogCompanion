@@ -1,16 +1,23 @@
-import { View, Text } from 'react-native';
+import { useEffect, useRef } from 'react';
+import Toast from 'react-native-toast-message';
 import { useNetworkStatus } from '@shared/hooks/useNetworkStatus';
 
 export const OfflineBanner = () => {
   const { isConnected } = useNetworkStatus();
+  const wasConnected = useRef(isConnected);
 
-  if (isConnected) return null;
+  useEffect(() => {
+    if (!isConnected && wasConnected.current) {
+      Toast.show({
+        type: 'error',
+        text1: 'No Internet Connection',
+        text2: 'Showing cached library',
+        position: 'bottom',
+        visibilityTime: 4000,
+      });
+    }
+    wasConnected.current = isConnected;
+  }, [isConnected]);
 
-  return (
-    <View className="bg-destructive/20 px-4 py-2 items-center">
-      <Text className="text-destructive text-caption font-rubik uppercase tracking-wider">
-        No internet connection — showing cached library
-      </Text>
-    </View>
-  );
+  return null;
 };

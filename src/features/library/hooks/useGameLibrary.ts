@@ -13,8 +13,10 @@ export const useGameLibrary = () => {
 
   return useQuery<SteamGame[]>({
     queryKey: queryKeys.games.all(steamId ?? ''),
-    queryFn: () =>
-      db.select().from(steamGames).orderBy(asc(steamGames.name)),
+    queryFn: async () => {
+      const rows = await db.select().from(steamGames).orderBy(asc(steamGames.name));
+      return rows;
+    },
     enabled: !!steamId,
     placeholderData: () => {
       const raw = mmkv.getString(MMKV_KEYS.LIBRARY_SNAPSHOT);

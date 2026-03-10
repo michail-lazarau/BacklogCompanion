@@ -94,7 +94,7 @@ const createWrapper = (steamId: string | null = STEAM_ID) => {
         sync_status: 'idle' as const,
         syncErrorReason: null,
         activeFilter: null,
-        activeSort: 'alphabetical',
+        activeSort: 'alphabetical' as const,
       },
     },
   });
@@ -190,7 +190,7 @@ describe('useGameLibrary', () => {
         reducer: { auth: authReducer, library: libraryReducer },
         preloadedState: {
           auth: { isAuthenticated: true, steamId: STEAM_ID },
-          library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter: null, activeSort: 'alphabetical' },
+          library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter: null, activeSort: 'alphabetical' as const },
         },
       });
     })();

@@ -2,19 +2,21 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export type SyncStatus = 'idle' | 'syncing' | 'error';
 export type SyncErrorReason = 'private_profile' | 'api_error';
+export type FilterOption = 'unplayed' | 'in_progress' | 'completed';
+export type SortOption = 'alphabetical' | 'playtime_asc' | 'playtime_desc' | 'timeLastPlayed';
 
 interface LibraryState {
   sync_status: SyncStatus;
   syncErrorReason: SyncErrorReason | null;
-  activeFilter: string | null;
-  activeSort: string;
+  activeFilter: FilterOption | null;
+  activeSort: SortOption;
 }
 
 const initialState: LibraryState = {
   sync_status: 'idle',
   syncErrorReason: null,
   activeFilter: null,
-  activeSort: 'alphabetical',
+  activeSort: 'timeLastPlayed',
 };
 
 const librarySlice = createSlice({
@@ -31,10 +33,10 @@ const librarySlice = createSlice({
       state.sync_status = 'error';
       state.syncErrorReason = action.payload;
     },
-    setActiveFilter(state, action: PayloadAction<string | null>) {
+    setActiveFilter(state, action: PayloadAction<FilterOption | null>) {
       state.activeFilter = action.payload;
     },
-    setActiveSort(state, action: PayloadAction<string>) {
+    setActiveSort(state, action: PayloadAction<SortOption>) {
       state.activeSort = action.payload;
     },
   },

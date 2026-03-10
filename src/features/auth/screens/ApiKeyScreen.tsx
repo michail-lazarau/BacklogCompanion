@@ -5,9 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
-  Linking,
   StyleSheet,
 } from 'react-native';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApiKeySetup } from '@features/auth/hooks/useApiKeySetup';
 import { tokens } from '@res/tokens';
@@ -29,7 +29,14 @@ export const ApiKeyScreen = ({ onKeySaved }: ApiKeyScreenOwnProps) => {
   };
 
   const handleOpenLink = () => {
-    Linking.openURL(STEAM_API_KEY_URL).catch(() => { /* ignore */ });
+    // openAuth (ASWebAuthenticationSession) shares the Steam session from the login step.
+    // The user copies the key and taps Cancel — the 'cancel' result is expected and ignored.
+    InAppBrowser.openAuth(STEAM_API_KEY_URL, 'backlogcompanion://', {
+      ephemeralWebSession: false,
+      showTitle: false,
+      enableUrlBarHiding: true,
+      enableDefaultShare: false,
+    }).catch(() => { /* ignore */ });
   };
 
   return (

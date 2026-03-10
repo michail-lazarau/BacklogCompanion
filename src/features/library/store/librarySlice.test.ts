@@ -6,7 +6,7 @@ describe('librarySlice', () => {
     expect(state.sync_status).toBe('idle');
     expect(state.syncErrorReason).toBeNull();
     expect(state.activeFilter).toBeNull();
-    expect(state.activeSort).toBe('alphabetical');
+    expect(state.activeSort).toBe('timeLastPlayed');
   });
 
   it('setSyncStatus updates to syncing', () => {

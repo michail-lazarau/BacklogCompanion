@@ -19,8 +19,9 @@ export const useApiKeySetup = () => {
   const { handleSteamAuthError } = useSessionExpiry();
 
   const validateAndSaveApiKey = useCallback(
-    async (apiKey: string): Promise<boolean> => {
-      if (!apiKey.trim()) {
+    async (rawApiKey: string): Promise<boolean> => {
+      const apiKey = rawApiKey.trim();
+      if (!apiKey) {
         setError('Please enter your API key');
         return false;
       }
@@ -38,6 +39,10 @@ export const useApiKeySetup = () => {
       } catch (e: unknown) {
         if (isSteamError(e) && e.code === 'UNAUTHORIZED') {
           await handleSteamAuthError(e);
+        } else if (e instanceof Error && e.message.includes('Network request failed')) {
+          setError('Network error. Check your connection and try again.');
+        } else if (e instanceof Error && e.message.includes('no players')) {
+          setError('Key not recognised by Steam yet. New keys can take a few minutes — try again shortly.');
         } else {
           setError('Invalid API key. Please check and try again.');
         }

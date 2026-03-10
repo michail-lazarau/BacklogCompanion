@@ -70,3 +70,35 @@
     ```bash
     npm test
     ```
+
+## Corporate Network / SSL Proxy (Symantec WSS)
+
+If your machine has **Symantec Web Security Service (WSS)** installed (common in corporate environments), it performs HTTPS inspection by injecting its own root certificate into all TLS connections. React Native's JS runtime uses its own TLS stack, which does **not** trust the macOS system keychain by default — so all `fetch` / `XMLHttpRequest` calls will fail with:
+
+```
+Network request failed  (error 61: Connection refused)
+```
+
+Safari and WebKit-based views work fine because they use the system keychain. Only the Metro-bundled JS runtime is affected.
+
+### Fix: install the proxy cert into the simulator's trust store
+
+Run this **once per simulator** (after first boot, before testing any network calls):
+
+```bash
+xcrun simctl keychain booted add-root-cert ~/Downloads/CertEmulationCA.crt
+```
+
+> **Note:** Replace `~/Downloads/CertEmulationCA.crt` with the actual path to your corporate root certificate if it was saved elsewhere.
+
+After adding the cert, **relaunch the simulator** (Simulator → Device → Restart). The cert takes effect on the next boot.
+
+### When this must be repeated
+
+- Every time you create or reset a simulator (the keychain is wiped)
+- After upgrading to a new iOS simulator runtime (e.g. iOS 26.x creates a new device)
+- After `xcrun simctl erase` or "Erase All Content and Settings"
+
+### Physical device
+
+On a physical device enrolled in MDM, the corporate cert is typically pushed automatically. If you see the same error on device, check **Settings → General → VPN & Device Management** and verify the root certificate is listed and trusted.

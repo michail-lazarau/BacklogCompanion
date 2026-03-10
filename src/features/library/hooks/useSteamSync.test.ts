@@ -82,7 +82,7 @@ const createTestStore = (authOverrides: Record<string, unknown> = {}) =>
     reducer: { auth: authReducer, library: libraryReducer },
     preloadedState: {
       auth: { isAuthenticated: true, steamId: '76561198012345678', ...authOverrides },
-      library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter: null, activeSort: 'alphabetical' },
+      library: { sync_status: 'idle' as const, syncErrorReason: null, activeFilter: null, activeSort: 'alphabetical' as const },
     },
   });
 

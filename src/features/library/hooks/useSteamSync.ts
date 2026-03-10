@@ -45,7 +45,7 @@ const getBackoffDelay = (retryCount: number): number => {
  * Does nothing when `games` is empty — avoids a full table scan for a no-op incremental sync.
  */
 const applyDeltaSync = async (games: SteamGame[]): Promise<void> => {
-  if (games.length === 0) return; // nothing to sync — skip batch DB select
+  if (games.length === 0) return;
 
   // Batch select all existing rows for O(1) dirty-check lookups
   const existingRows = await db
@@ -63,20 +63,26 @@ const applyDeltaSync = async (games: SteamGame[]): Promise<void> => {
       const existing = existingMap.get(game.appid);
       if (!existing) return true;
       if (existing.playtimeForever !== game.playtime_forever) return true;
-      // rtimeLastPlayed is stored as integer seconds in SQLite
-      if ((existing.rtimeLastPlayed ?? 0) !== (game.rtime_last_played ?? 0)) return true;
+      // Only compare rtimeLastPlayed when the API provides it
+      // (GetRecentlyPlayedGames does NOT return rtime_last_played)
+      if (game.rtime_last_played != null &&
+          (existing.rtimeLastPlayed ?? 0) !== game.rtime_last_played) return true;
       return false;
     })
-    .map(game => ({
-      appId: game.appid,
-      name: game.name,
-      playtimeForever: game.playtime_forever,
-      playtime2weeks: game.playtime_2weeks ?? null,
-      rtimeLastPlayed: game.rtime_last_played ?? null,
-      imgIconUrl: game.img_icon_url,
-      headerImage: `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/header.jpg`,
-      lastSyncedAt: new Date(),
-    }));
+    .map(game => {
+      const existing = existingMap.get(game.appid);
+      return {
+        appId: game.appid,
+        name: game.name,
+        playtimeForever: game.playtime_forever,
+        playtime2weeks: game.playtime_2weeks ?? null,
+        // Preserve existing rtimeLastPlayed when the API doesn't provide it
+        rtimeLastPlayed: game.rtime_last_played ?? existing?.rtimeLastPlayed ?? null,
+        imgIconUrl: game.img_icon_url,
+        headerImage: `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/header.jpg`,
+        lastSyncedAt: new Date(),
+      };
+    });
 
   if (dirtyRows.length > 0) {
     await db
@@ -188,7 +194,6 @@ export const useSteamSync = () => {
         wasFullSync = true;
       }
 
-      // Delta detection + batch upsert
       await applyDeltaSync(games);
 
       // Write MMKV snapshot only after full sync (not incremental) — used as placeholderData
