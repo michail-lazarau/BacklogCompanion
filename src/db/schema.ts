@@ -31,3 +31,13 @@ export const steamGames = sqliteTable('steam_games', {
 // Inferred TypeScript types — used throughout the app instead of manual interfaces
 export type SteamGame = typeof steamGames.$inferSelect;
 export type NewSteamGame = typeof steamGames.$inferInsert;
+
+export const achievementCache = sqliteTable('achievement_cache', {
+  appId: integer('app_id').primaryKey().references(() => steamGames.appId),
+  cachedAt: integer('cached_at').notNull(),       // Unix timestamp (seconds)
+  unlockedCount: integer('unlocked_count').notNull(),
+  totalCount: integer('total_count').notNull(),
+  data: text('data').notNull(),                    // JSON string of MergedAchievement[]
+});
+
+export type AchievementCacheRow = typeof achievementCache.$inferSelect;

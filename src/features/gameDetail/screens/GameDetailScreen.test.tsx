@@ -14,6 +14,9 @@ jest.mock('../components/GameDetailSkeleton', () => ({
     return jest.requireActual<typeof import('react')>('react').createElement(View, { testID: 'game-detail-skeleton' });
   },
 }));
+jest.mock('../components/AchievementsSection', () => ({
+  AchievementsSection: () => null,
+}));
 
 import { useGameDetail } from '../hooks/useGameDetail';
 import { GameDetailScreen } from './GameDetailScreen';

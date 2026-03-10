@@ -13,6 +13,7 @@ import { tokens } from '@res/tokens';
 import { formatPlaytime } from '@shared/utils/formatPlaytime';
 import { useGameDetail } from '../hooks/useGameDetail';
 import { GameDetailSkeleton } from '../components/GameDetailSkeleton';
+import { AchievementsSection } from '../components/AchievementsSection';
 import type { GameDetailScreenProps } from '@navigation/types';
 
 // Steam header images are 460×215 — use this ratio so the image fits exactly
@@ -108,6 +109,9 @@ export const GameDetailScreen = ({ route, navigation }: GameDetailScreenProps) =
         <View style={styles.infoContainer}>
           <Text testID="game-title" style={styles.title}>{game.name}</Text>
           <Text style={styles.playtime}>{formatPlaytime(game.playtimeForever)}</Text>
+          <View style={styles.achievementsContainer}>
+            <AchievementsSection appId={appId} />
+          </View>
         </View>
       </Animated.ScrollView>
     </View>
@@ -192,5 +196,8 @@ const styles = StyleSheet.create({
     color: tokens.colors.text300,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  achievementsContainer: {
+    marginTop: tokens.spacing.lg,
   },
 });

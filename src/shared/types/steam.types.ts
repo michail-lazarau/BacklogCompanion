@@ -269,7 +269,6 @@ interface GameSchema {
   availableGameStats: AvailableGameStats;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface SteamGameSchemaResponse {
   game: GameSchema;
 }
@@ -289,7 +288,6 @@ interface PlayerStats {
   success: boolean;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface SteamPlayerAchievementsResponse {
   playerstats: PlayerStats;
 }
@@ -307,4 +305,4 @@ interface GetRecentlyPlayedGamesResponse {
   };
 }
 
-export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse, ReducedSteamGame, LLMGameSuggestionResponse, GetRecentlyPlayedGamesResponse };
+export type { SteamOwnedGamesResponse, SteamGame, SteamAppData, SteamAppDetailsResponse, ReducedSteamGame, LLMGameSuggestionResponse, GetRecentlyPlayedGamesResponse, Achievement, AchievementProgress, SteamGameSchemaResponse, SteamPlayerAchievementsResponse };

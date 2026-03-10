@@ -1,6 +1,6 @@
 import Config from "react-native-config";
 import type { SteamError } from "@shared/types/errors.types";
-import type { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse, GetRecentlyPlayedGamesResponse } from "@shared/types/steam.types";
+import type { SteamAppData, SteamAppDetailsResponse, SteamOwnedGamesResponse, GetRecentlyPlayedGamesResponse, SteamGameSchemaResponse, SteamPlayerAchievementsResponse } from "@shared/types/steam.types";
 import { steamFetch, storeFetch } from "./httpClient";
 import { API_BASE_URLS } from "@shared/types/httpClient.types";
 
@@ -132,7 +132,7 @@ export const getRecentlyPlayedGamesWithKey = async (
   const queryString =
     'key=' + encodeURIComponent(apiKey) +
     '&steamid=' + encodeURIComponent(steamId) +
-    '&count=' + count +
+    '&count=' + encodeURIComponent(count) +
     '&format=json';
   const url = `${API_BASE_URLS.steam}/IPlayerService/GetRecentlyPlayedGames/v0001/?${queryString}`;
 
@@ -152,6 +152,89 @@ export const getRecentlyPlayedGamesWithKey = async (
   }
 
   return (await response.json()) as GetRecentlyPlayedGamesResponse;
+};
+
+// NOTE: Uses raw fetch to preserve HTTP status code for 401/403 detection.
+export const getGameSchema = async (
+  apiKey: string,
+  appId: number,
+): Promise<SteamGameSchemaResponse> => {
+  const queryString =
+    'key=' + encodeURIComponent(apiKey) +
+    '&appid=' + encodeURIComponent(appId) +
+    '&l=english';
+  const url = `${API_BASE_URLS.steam}/ISteamUserStats/GetSchemaForGame/v0002/?${queryString}`;
+
+  const response = await fetch(url);
+
+  if (response.status === 401 || response.status === 403) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'UNAUTHORIZED',
+      message: `Steam API returned ${response.status}`,
+    };
+    throw steamError;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Steam API error: ${response.status}`);
+  }
+
+  const data = await response.json() as SteamGameSchemaResponse;
+
+  // If game has no stats/achievements, availableGameStats may be absent
+  if (!data?.game?.availableGameStats) {
+    return {
+      game: {
+        gameName: data?.game?.gameName ?? '',
+        gameVersion: data?.game?.gameVersion ?? '',
+        availableGameStats: { stats: [], achievements: [] },
+      },
+    };
+  }
+
+  return data;
+};
+
+// NOTE: Uses raw fetch to preserve HTTP status code for 400/401/403 detection.
+// HTTP 400 means no achievement data (no stats or private profile) — throw NOT_FOUND.
+export const getPlayerAchievements = async (
+  apiKey: string,
+  steamId: string,
+  appId: number,
+): Promise<SteamPlayerAchievementsResponse> => {
+  const queryString =
+    'key=' + encodeURIComponent(apiKey) +
+    '&steamid=' + encodeURIComponent(steamId) +
+    '&appid=' + encodeURIComponent(appId) +
+    '&l=english';
+  const url = `${API_BASE_URLS.steam}/ISteamUserStats/GetPlayerAchievements/v0001/?${queryString}`;
+
+  const response = await fetch(url);
+
+  if (response.status === 401 || response.status === 403) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'UNAUTHORIZED',
+      message: `Steam API returned ${response.status}`,
+    };
+    throw steamError;
+  }
+
+  if (response.status === 400) {
+    const steamError: SteamError = {
+      type: 'SteamError',
+      code: 'NOT_FOUND',
+      message: 'No achievement data',
+    };
+    throw steamError;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Steam API error: ${response.status}`);
+  }
+
+  return (await response.json()) as SteamPlayerAchievementsResponse;
 };
 
 export { getOwnedGames, getAppDetails, getManyAppDetails, getPlayerSummaries };

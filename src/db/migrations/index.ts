@@ -9,11 +9,13 @@
 //   2. Import the new file as `m0001` (matching the next journal idx)
 //   3. Add `m0001` to the migrations object below
 import m0000 from './0000_curvy_starjammers.sql';
+import m0001 from './0001_aberrant_stone_men.sql';
 import journal from './meta/_journal.json';
 
 export const allMigrations = {
   journal,
   migrations: {
     m0000,
+    m0001,
   },
 };

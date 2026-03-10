@@ -5,6 +5,7 @@ export const queryKeys = {
     all: (steamId: string) => ['games', steamId] as const,
     detail: (appId: number) => ['games', 'detail', appId] as const,
     hltb: (appId: number) => ['games', 'detail', appId, 'hltb'] as const,
+    achievements: (appId: number) => ['games', 'detail', appId, 'achievements'] as const,
   },
   recommendations: {
     all: (steamId: string) => ['recommendations', steamId] as const,
