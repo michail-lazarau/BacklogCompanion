@@ -17,6 +17,9 @@ jest.mock('../components/GameDetailSkeleton', () => ({
 jest.mock('../components/AchievementsSection', () => ({
   AchievementsSection: () => null,
 }));
+jest.mock('../components/HltbSection', () => ({
+  HltbSection: () => null,
+}));
 
 import { useGameDetail } from '../hooks/useGameDetail';
 import { GameDetailScreen } from './GameDetailScreen';

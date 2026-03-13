@@ -19,9 +19,9 @@ export const steamGames = sqliteTable('steam_games', {
   headerImage: text('header_image'), // large cover: https://cdn.akamai.steamstatic.com/steam/apps/{appid}/header.jpg
 
   // HLTB cache — populated on-demand in Story 4.2, null until fetched
-  hltbMain: real('hltb_main'), // Main Story hours
-  hltbExtra: real('hltb_extra'), // Main + Extra hours
-  hltbComplete: real('hltb_complete'), // Completionist hours
+  hltbMain: real('hltb_main'), // Main Story seconds (from HLTB API comp_main)
+  hltbExtra: real('hltb_extra'), // Main + Extra seconds (from HLTB API comp_plus)
+  hltbComplete: real('hltb_complete'), // Completionist seconds (from HLTB API comp_100)
   hltbCachedAt: integer('hltb_cached_at', { mode: 'timestamp' }), // when HLTB was fetched
 
   // REQUIRED by architecture for ALL Steam-sourced tables — delta sync
