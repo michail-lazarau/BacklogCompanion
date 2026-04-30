@@ -93,6 +93,10 @@ xcrun simctl keychain booted add-root-cert ~/Downloads/CertEmulationCA.crt
 
 After adding the cert, **relaunch the simulator** (Simulator → Device → Restart). The cert takes effect on the next boot.
 
+### Other known causes of "Network request failed"
+
+- **Proxyman running** — Proxyman intercepts simulator traffic and can block requests. Quit Proxyman and retry.
+
 ### When this must be repeated
 
 - Every time you create or reset a simulator (the keychain is wiped)

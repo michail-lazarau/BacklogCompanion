@@ -237,7 +237,7 @@ export const useSteamSync = () => {
         retryCountRef.current += 1;
         const delay = getBackoffDelay(retryCountRef.current);
         // Use ref to avoid stale-closure self-reference (ESLint react-hooks/immutability)
-        retryTimeoutRef.current = setTimeout(() => { runSyncRef.current().catch(() => { /* backoff retry — silent */ }); }, delay);
+        retryTimeoutRef.current = setTimeout(() =>  runSyncRef.current().catch(() => { /* backoff retry — silent */ }), delay);
       }
     }
   }, [isAuthenticated, steamId, dispatch, handleSteamAuthError, queryClient]);
